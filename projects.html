@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - Dr. Jane Doe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Narendra</a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="publications.html" class="nav-link">Publications</a></li>
+                <!--<li><a href="projects.html" class="nav-link active">Projects</a></li>-->
+                <li><a href="cv.html" class="nav-link">CV</a></li>
+            </ul>
+            <button class="theme-toggle" aria-label="Toggle dark mode">
+                <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="page-header fade-in">
+            <h1>Research Projects</h1>
+            <p class="page-subtitle">Current and past research initiatives</p>
+        </section>
+
+        <section class="projects-section">
+            <div class="project-card featured fade-in-delay-1">
+                <div class="project-content">
+                    <span class="project-tag">Current</span>
+                    <h2>Interpretable AI for Clinical Decision Support</h2>
+                    <p class="project-meta">NSF CAREER Award | 2024-2029</p>
+                    <p class="project-description">
+                        This project aims to develop interpretable machine learning systems that can assist clinicians in making complex diagnostic and treatment decisions. We are building novel neural architectures that provide human-understandable explanations while maintaining high predictive accuracy. The project involves close collaboration with medical professionals at three major hospitals.
+                    </p>
+                    <p class="project-description">
+                        Key innovations include: (1) prototype-based neural networks that reference similar historical cases, (2) attention mechanisms that highlight relevant features in medical images and patient records, and (3) interactive visualization tools that allow clinicians to explore and validate model predictions.
+                    </p>
+                    <div class="project-links">
+                        <a href="#" class="project-link">Project Page</a>
+                        <a href="#" class="project-link">Publications</a>
+                        <a href="#" class="project-link">Code</a>
+                        <a href="#" class="project-link">Team</a>
+                    </div>
+                </div>
+                <div class="project-visual">
+                    <div class="project-placeholder">
+                        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="400" height="300" fill="currentColor" opacity="0.05"/>
+                            <text x="200" y="160" font-size="18" fill="currentColor" opacity="0.6" text-anchor="middle" font-family="Work Sans">Project Visualization</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card fade-in-delay-2">
+                <div class="project-content">
+                    <span class="project-tag">Current</span>
+                    <h2>Human-AI Collaborative Decision Making</h2>
+                    <p class="project-meta">In collaboration with Industry Partner | 2023-Present</p>
+                    <p class="project-description">
+                        Investigating how humans and AI systems can effectively work together in high-stakes decision-making scenarios. We conduct user studies, develop interaction paradigms, and create computational models of human-AI collaboration. The project spans applications in healthcare, finance, and legal domains.
+                    </p>
+                    <div class="project-links">
+                        <a href="#" class="project-link">Publications</a>
+                        <a href="#" class="project-link">Demo</a>
+                    </div>
+                </div>
+                <div class="project-visual">
+                    <div class="project-placeholder">
+                        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="400" height="300" fill="currentColor" opacity="0.05"/>
+                            <text x="200" y="160" font-size="18" fill="currentColor" opacity="0.6" text-anchor="middle" font-family="Work Sans">Project Visualization</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card fade-in-delay-3">
+                <div class="project-content">
+                    <span class="project-tag">Current</span>
+                    <h2>Robust and Fair Machine Learning</h2>
+                    <p class="project-meta">Grant Support from XYZ Foundation | 2023-2025</p>
+                    <p class="project-description">
+                        Developing techniques to build ML models that are simultaneously robust to adversarial attacks and fair across different demographic groups. We explore the inherent trade-offs between robustness and fairness, and propose methods to optimize both objectives jointly. The work has implications for deploying ML in sensitive domains.
+                    </p>
+                    <div class="project-links">
+                        <a href="#" class="project-link">Publications</a>
+                        <a href="#" class="project-link">Code</a>
+                    </div>
+                </div>
+                <div class="project-visual">
+                    <div class="project-placeholder">
+                        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="400" height="300" fill="currentColor" opacity="0.05"/>
+                            <text x="200" y="160" font-size="18" fill="currentColor" opacity="0.6" text-anchor="middle" font-family="Work Sans">Project Visualization</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card fade-in-delay-4">
+                <div class="project-content">
+                    <span class="project-tag completed">Completed</span>
+                    <h2>Neural Dialogue Systems with Controllable Attributes</h2>
+                    <p class="project-meta">PhD Thesis Project | 2018-2022</p>
+                    <p class="project-description">
+                        My doctoral research focused on building dialogue systems that can flexibly control conversational attributes like persona, emotion, and style. I developed novel neural architectures and training procedures that enable fine-grained control while maintaining conversation quality. The work resulted in multiple publications and open-source releases.
+                    </p>
+                    <div class="project-links">
+                        <a href="#" class="project-link">Thesis</a>
+                        <a href="#" class="project-link">Publications</a>
+                        <a href="#" class="project-link">Code</a>
+                    </div>
+                </div>
+                <div class="project-visual">
+                    <div class="project-placeholder">
+                        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="400" height="300" fill="currentColor" opacity="0.05"/>
+                            <text x="200" y="160" font-size="18" fill="currentColor" opacity="0.6" text-anchor="middle" font-family="Work Sans">Project Visualization</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card fade-in-delay-5">
+                <div class="project-content">
+                    <span class="project-tag completed">Completed</span>
+                    <h2>Privacy-Preserving Federated Learning</h2>
+                    <p class="project-meta">Collaboration with Tech Company | 2021-2022</p>
+                    <p class="project-description">
+                        Developed novel federated learning protocols with formal differential privacy guarantees. The work addressed key challenges in distributed learning including communication efficiency, model convergence, and privacy-utility trade-offs. Our methods were evaluated on large-scale real-world datasets.
+                    </p>
+                    <div class="project-links">
+                        <a href="#" class="project-link">Publications</a>
+                        <a href="#" class="project-link">Code</a>
+                    </div>
+                </div>
+                <div class="project-visual">
+                    <div class="project-placeholder">
+                        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="400" height="300" fill="currentColor" opacity="0.05"/>
+                            <text x="200" y="160" font-size="18" fill="currentColor" opacity="0.6" text-anchor="middle" font-family="Work Sans">Project Visualization</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="open-source-section fade-in-delay-6">
+            <h2>Open Source Contributions</h2>
+            <div class="os-grid">
+                <div class="os-card">
+                    <h3>InterpretML</h3>
+                    <p>A Python package for interpretable machine learning with support for multiple explanation methods.</p>
+                    <a href="#" class="os-link">View on GitHub →</a>
+                </div>
+                <div class="os-card">
+                    <h3>FairLearn</h3>
+                    <p>Tools and algorithms for assessing and improving fairness in machine learning models.</p>
+                    <a href="#" class="os-link">View on GitHub →</a>
+                </div>
+                <div class="os-card">
+                    <h3>DialogueKit</h3>
+                    <p>Framework for building and evaluating neural dialogue systems with various control mechanisms.</p>
+                    <a href="#" class="os-link">View on GitHub →</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Jane Doe. All rights reserved.</p>
+            <p>Last updated: March 2024</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
