@@ -85,13 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add subtle parallax effect to hero section if it exists
     const hero = document.querySelector('.hero');
-    if (hero) {
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            hero.style.transform = `translateY(${scrolled * 0.3}px)`;
-            hero.style.opacity = 1 - scrolled / 600;
-        });
-    }
+    // Removed parallax effect to prevent overlapping
 });
 
 // Print CV functionality
