@@ -68,10 +68,28 @@ document.querySelectorAll('section').forEach(section => {
 
 // Active navigation link highlighting
 function setActiveNavLink() {
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    let path = window.location.pathname;
+    
+    // If working locally (file://), path might end with .html
+    if (path.endsWith('.html')) {
+        path = path.substring(0, path.length - 5);
+    }
+    // Remove trailing slash for consistency (unless it's just '/')
+    if (path.endsWith('/') && path.length > 1) {
+        path = path.slice(0, -1);
+    }
+    
+    // Get the final segment (e.g. 'publications' or '')
+    let page = path.split('/').pop();
+    if (!page || page.toLowerCase() === 'index') {
+        page = '/';
+    } else {
+        page = '/' + page;
+    }
+
     document.querySelectorAll('.nav-link').forEach(link => {
-        const linkPage = link.getAttribute('href');
-        if (linkPage === currentPage) {
+        const linkHref = link.getAttribute('href');
+        if (linkHref === page) {
             link.classList.add('active');
         } else {
             link.classList.remove('active');
