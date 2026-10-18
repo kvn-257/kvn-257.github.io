@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Learning Based Link Prediction for Minimizing Maximum Betweenness</title>
+    <meta name="description"
+        content="A GNN-based approach to predict the missing link whose addition most reduces a network's maximum betweenness centrality. CNA 2024.">
+    <link rel="canonical" href="https://kvn-257.github.io/project/min-max-betweenness/">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Deep Learning Based Link Prediction for Minimizing Maximum Betweenness">
+    <meta property="og:description"
+        content="A GNN-based approach to predict the missing link whose addition most reduces a network's maximum betweenness centrality. CNA 2024.">
+    <meta property="og:url" content="https://kvn-257.github.io/project/min-max-betweenness/">
+    <meta property="og:image"
+        content="https://kvn-257.github.io/project/min-max-betweenness/static/images/workflow.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <meta name="citation_title" content="Deep Learning Based Link Prediction for Minimizing Maximum Betweenness">
+    <meta name="citation_author" content="Aashish">
+    <meta name="citation_author" content="Diwakar, Parul">
+    <meta name="citation_author" content="Kotyada, Venkata Narendra">
+    <meta name="citation_author" content="Singh, Rishi Ranjan">
+    <meta name="citation_author" content="Pramanik, Soumajit">
+    <meta name="citation_inbook_title" content="Complex Networks &amp; Their Applications XIII">
+    <meta name="citation_publisher" content="Springer Nature Switzerland">
+    <meta name="citation_publication_date" content="2025">
+    <meta name="citation_firstpage" content="237">
+    <meta name="citation_lastpage" content="249">
+    <meta name="citation_doi" content="10.1007/978-3-031-82439-5_20">
+
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Noto+Sans:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <link rel="stylesheet" href="static/css/index.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\(', right: '\\)', display: false}]});"></script>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="publication-header">
+        <div class="container">
+            <h1 class="title is-1 publication-title">Deep Learning Based Link Prediction for Minimizing Maximum
+                Betweenness</h1>
+
+            <div class="publication-venue">CNA 2024
+                <span class="publication-oral">(Oral)
+                </span>
+            </div>
+
+
+            <div class="publication-authors">
+                <span class="author-block"><a href="https://www.linkedin.com/in/aashish-nehra-424095261/"
+                        target="_blank">Aashish</a><sup>1</sup>,</span>
+                <span class="author-block"><a href="https://github.com/paruldiwakar" target="_blank">Parul
+                        Diwakar</a><sup>1</sup>,</span>
+                <span class="author-block"><a href="/" target="_blank">Venkata Narendra
+                        Kotyada</a><sup>2</sup>,</span>
+                <span class="author-block"><a href="https://www.iitbhilai.ac.in/index.php?pid=rishi"
+                        target="_blank">Rishi Ranjan Singh</a><sup>1</sup>,</span>
+                <span class="author-block"><a href="https://www.iitbhilai.ac.in/index.php?pid=soumajit"
+                        target="_blank">Soumajit Pramanik</a><sup>1</sup></span>
+            </div>
+
+            <div class="publication-affiliations">
+                <sup>1</sup>Indian Institute of Technology Bhilai<br>
+                <sup>2</sup>National Institute of Technology Andhra Pradesh
+            </div>
+
+            <div class="publication-links">
+                <a href="https://doi.org/10.1007/978-3-031-82439-5_20" target="_blank" class="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    <span>Paper</span>
+                </a>
+                <a href="#BibTeX" class="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                    </svg>
+                    <span>BibTeX</span>
+                </a>
+            </div>
+            <p class="access-note">
+                Published by Springer in <i>Complex Networks &amp; Their Applications XIII</i>.
+            </p>
+        </div>
+    </header>
+
+    <!-- TL;DR -->
+    <section class="section is-light">
+        <div class="container narrow">
+            <h2 class="title is-3">TL;DR</h2>
+            <div class="content">
+                <p>
+                    The most central node in a network carries the most shortest-path traffic, which makes it the
+                    network's <b>bottleneck</b>. Adding one well-chosen link can relieve it. We consider the problem of
+                    finding the <b>missing link whose addition minimizes the network's maximum betweenness</b>.
+                </p>
+                <p>
+                    Brute force recomputes betweenness for every candidate link, which is too slow even for moderate
+                    networks. We instead train a <b>Graph Neural Network</b> that ranks missing links by how much they
+                    would reduce maximum betweenness, using a joint <b>classification and triplet ranking loss</b>.
+                </p>
+                <p>
+                    On scale-free Barab&aacute;si&ndash;Albert networks, the model reaches <b>0.82 mAP@10</b> and
+                    <b>0.92 mAP@100</b>, about as good as on high-diameter path and tree networks, where useful links
+                    are much easier to find.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Motivation & problem -->
+    <section class="section">
+        <div class="container narrow">
+            <h2 class="title is-3">Why Minimize Maximum Betweenness?</h2>
+            <div class="content">
+                <p>
+                    Betweenness centrality measures how often a node lies on the shortest paths between other pairs of
+                    nodes, so it estimates how much traffic flows through that node. The highest value in a network,
+                    its <b>maximum betweenness</b>, marks the most loaded node. That node needs the most maintenance and
+                    resources, causes congestion, concentrates power, and makes the network vulnerable to attack and
+                    fragmentation.
+                </p>
+                <p>
+                    One way to reduce this load is to divert traffic through a new link. Given a graph
+                    \(G = (V, E)\) and its set of missing links \(\bar{E}\), we want the link whose addition gives the
+                    lowest maximum betweenness:
+                </p>
+                <div class="equation">
+                    $$e_{\min} = \arg\min_{e \in \bar{E}} \; \max_{v \in V} \; BC_{G_e}(v), \qquad G_e = (V, E \cup
+                    \{e\})$$
+                </div>
+                <p>
+                    Brute force tries all \(K = \binom{|V|}{2} - |E|\) candidate links and recomputes betweenness with
+                    Brandes' algorithm each time. That costs \(O(K \cdot |V||E|)\), or \(O(|V|^3|E|)\) on sparse
+                    real-world networks, which is too slow even for moderate-size networks. This motivates a learned
+                    approach.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core contributions -->
+    <section class="section is-light">
+        <div class="container">
+            <h2 class="title is-3">Core Contributions</h2>
+            <div class="columns is-3">
+                <div class="box">
+                    <h3 class="title is-5">A New Link Prediction Task</h3>
+                    <p>
+                        We study <b>link prediction</b> that lowers the maximum betweenness of a network. Prior
+                        work mostly increases one node's centrality instead.
+                    </p>
+                </div>
+                <div class="box">
+                    <h3 class="title is-5">Classify-then-Rank GNN</h3>
+                    <p>
+                        A GraphSAGE encoder feeds two MLPs: one decides <b>whether</b> a missing edge helps, the other
+                        <b>ranks</b> edges by how much they help.
+                    </p>
+                </div>
+                <div class="box">
+                    <h3 class="title is-5">Triplet Margin Ranking Loss</h3>
+                    <p>
+                        A ranking loss that compares <b>three edges at a time</b>. It outperforms the standard pairwise
+                        margin loss.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Method -->
+    <section class="section">
+        <div class="container narrow">
+            <h2 class="title is-3">How It Works</h2>
+            <div class="content">
+                <p>
+                    <b>1. Learn node embeddings with a GNN.</b><br>
+                    A GraphSAGE encoder with a mean aggregator builds node representations through message passing.
+                    Because it is inductive, it generalizes to unseen nodes and graphs. A missing edge \((u, v)\) is
+                    represented by concatenating its endpoints' embeddings, \(E_{u,v} = [\,h_u \,\|\, h_v\,]\).
+                </p>
+                <p>
+                    <b>2. Classify and score every missing edge.</b><br>
+                    <b>MLP<sub>1</sub></b> predicts whether the edge can lower maximum betweenness at all (binary
+                    cross-entropy loss \(\mathcal{L}_C\)). <b>MLP<sub>2</sub></b> outputs a score used to rank all
+                    missing edges.
+                </p>
+                <p>
+                    <b>3. Train with a joint classification and ranking objective.</b><br>
+                    The ranking loss compares triplets of edges \(\{m, n, o\}\). The total loss
+                    \(\mathcal{L} = \mathcal{L}_C + \mathcal{L}_R\) is backpropagated through both MLPs and the GNN.
+                </p>
+                <div class="equation">
+                    $$\mathcal{L}_R = \max\!\big(0,\; -I_{m,n}(s_m - s_n) + M,\; -I_{n,o}(s_n - s_o) + M,\;
+                    -I_{o,m}(s_o - s_m) + M\big)$$
+                </div>
+                <p class="equation-note">
+                    \(s\) are predicted scores, \(I_{m,n} = 1\) if edge \(m\) truly reduces maximum betweenness more
+                    than \(n\) (else \(-1\)), and the margin \(M = 1\).
+                </p>
+            </div>
+        </div>
+
+        <div class="container">
+            <figure class="figure">
+                <img src="static/images/workflow.png"
+                    alt="Two-stage workflow: GraphSAGE produces node embeddings that are concatenated into edge embeddings, then MLP1 classifies edges and MLP2 scores them for ranking; both losses are summed."
+                    class="figure-medium">
+                <figcaption>
+                    <b>Figure 1: Model overview.</b><br>
+                    Stage 1 learns node embeddings with GraphSAGE. Stage 2 classifies (MLP<sub>1</sub>) and ranks
+                    (MLP<sub>2</sub>) missing edges, trained with a joint loss.
+                </figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <!-- Sampling -->
+    <section class="section is-light">
+        <div class="container">
+            <h2 class="title is-3">Most Edges Don't Help: Sampling the Extremes</h2>
+            <div class="columns is-2">
+                <div class="content">
+                    <p>
+                        We train on synthetic <b>Barab&aacute;si&ndash;Albert</b> (scale-free),
+                        <b>Erd&#337;s&ndash;R&eacute;nyi</b> (random), <b>tree</b> and <b>path</b> networks with
+                        160&ndash;250 nodes. For each network we add every missing edge, one at a time, and record the
+                        exact change in maximum betweenness as ground truth.
+                    </p>
+                    <p>
+                        Almost all edges change maximum betweenness by roughly zero. Only a few at either end of the
+                        sorted list matter. We therefore sample training edges with a <b>\(y = x^4\)
+                            distribution</b>, which draws most samples from those two ends.
+                    </p>
+                </div>
+                <figure class="figure" style="margin-top: 0;">
+                    <img src="static/images/maxbc-diff.png"
+                        alt="Edges sorted by change in maximum betweenness for BA and ER networks; most are near zero, with a few large values at both ends, overlaid with the y = x^4 sampling curve.">
+                    <figcaption>
+                        <b>Figure 2: Edge impact is heavy-tailed.</b><br>
+                        Missing edges sorted by their effect on maximum betweenness, with the \(x^4\) sampling curve.
+                    </figcaption>
+                </figure>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results -->
+    <section class="section">
+        <div class="container narrow">
+            <h2 class="title is-3">Accurate Rankings on Real-World-Like Networks</h2>
+            <div class="content">
+                <p>
+                    We compare the predicted edge ranking with the ground-truth ranking using <b>mAP@k</b> and Pearson
+                    (PC), Spearman (SC) and Kendall (KC) correlation over the top-k edges.
+                </p>
+                <p>
+                    BA networks have a scale-free degree distribution dominated by a few hubs, like real social and
+                    transport networks. On them the model reaches <b>0.82 mAP@10</b> and <b>0.92 mAP@100</b>, about as
+                    good as on path and tree networks, where adding an edge between distant nodes cuts maximum
+                    betweenness sharply and good links are easier to find.
+                </p>
+            </div>
+
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Network</th>
+                            <th>mAP@10</th>
+                            <th>mAP@100</th>
+                            <th>PC@100</th>
+                            <th>SC@100</th>
+                            <th>KC@100</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Barab&aacute;si&ndash;Albert</td>
+                            <td>0.82</td>
+                            <td>0.92</td>
+                            <td>0.82</td>
+                            <td>0.81</td>
+                            <td>0.63</td>
+                        </tr>
+                        <tr>
+                            <td>Tree</td>
+                            <td>0.74</td>
+                            <td>0.92</td>
+                            <td>0.78</td>
+                            <td>0.81</td>
+                            <td>0.65</td>
+                        </tr>
+                        <tr>
+                            <td>Path</td>
+                            <td>0.84</td>
+                            <td>0.99</td>
+                            <td>0.92</td>
+                            <td>0.93</td>
+                            <td>0.81</td>
+                        </tr>
+                        <tr class="is-muted">
+                            <td>Erd&#337;s&ndash;R&eacute;nyi</td>
+                            <td colspan="2">low (see Fig. 3)</td>
+                            <td>0.18</td>
+                            <td colspan="2">low (see Fig. 3)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="table-caption"><b>Table 1:</b> Ranking quality per network type.</p>
+        </div>
+
+        <div class="container">
+            <div class="figure-grid">
+                <figure class="figure">
+                    <img src="static/images/results-a.png" alt="mAP at k for BA, ER, tree and path networks.">
+                    <figcaption>(a) mAP@k</figcaption>
+                </figure>
+                <figure class="figure">
+                    <img src="static/images/results-b.png" alt="Average Pearson coefficient versus k.">
+                    <figcaption>(b) Pearson</figcaption>
+                </figure>
+                <figure class="figure">
+                    <img src="static/images/results-c.png" alt="Average Spearman coefficient versus k.">
+                    <figcaption>(c) Spearman</figcaption>
+                </figure>
+                <figure class="figure">
+                    <img src="static/images/results-d.png" alt="Average Kendall coefficient versus k.">
+                    <figcaption>(d) Kendall</figcaption>
+                </figure>
+            </div>
+            <figure class="figure" style="margin-top: 1rem;">
+                <figcaption>
+                    <b>Figure 3: Ranking quality versus top-k.</b><br>
+                    All four metrics agree. ER graphs are the hard case: with no hubs, hierarchy, community structure
+                    or long diameter, the model has few structural signals to find the critical links.
+                </figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <!-- BibTeX -->
+    <section class="section is-light bibtex" id="BibTeX">
+        <div class="container narrow">
+            <h2 class="title">📜 BibTeX</h2>
+            <div class="bibtex-block">
+                <button class="copy-button" type="button">Copy</button>
+                <pre><code>@inproceedings{aashish2025minimizing,
+  title     = {Deep Learning Based Link Prediction for Minimizing Maximum Betweenness},
+  author    = {Aashish and Diwakar, Parul and Kotyada, Venkata Narendra and Singh, Rishi Ranjan and Pramanik, Soumajit},
+  booktitle = {Complex Networks \&amp; Their Applications XIII},
+  editor    = {Cherifi, Hocine and Donduran, Murat and Rocha, Luis M. and Cherifi, Chantal and Varol, Onur},
+  series    = {Studies in Computational Intelligence},
+  publisher = {Springer Nature Switzerland},
+  address   = {Cham},
+  pages     = {237--249},
+  year      = {2025},
+  doi       = {10.1007/978-3-031-82439-5_20}
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container narrow">
+            <p>
+                Figures are reproduced from the authors' paper. The version of record is &copy; Springer Nature
+                Switzerland AG 2025, available at
+                <a href="https://doi.org/10.1007/978-3-031-82439-5_20"
+                    target="_blank">doi.org/10.1007/978-3-031-82439-5_20</a>.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.querySelector('.copy-button').addEventListener('click', function () {
+            const text = document.querySelector('.bibtex-block code').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                this.textContent = 'Copied!';
+                setTimeout(() => { this.textContent = 'Copy'; }, 1500);
+            });
+        });
+    </script>
+</body>
+
+</html>

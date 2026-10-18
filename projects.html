@@ -17,7 +17,7 @@
             <ul class="nav-menu">
                 <li><a href="/" class="nav-link">Home</a></li>
                 <li><a href="/publications" class="nav-link">Publications</a></li>
-                <!--<li><a href="/projects" class="nav-link active">Projects</a></li>-->
+                <li><a href="/projects" class="nav-link active">Projects</a></li>
                 <li><a href="/cv" class="nav-link">CV</a></li>
             </ul>
             <button class="theme-toggle" aria-label="Toggle dark mode">
@@ -41,150 +41,64 @@
 
     <main class="container">
         <section class="page-header fade-in">
-            <h1>Research Projects</h1>
-            <p class="page-subtitle">Current and past research initiatives</p>
+            <h1>Projects</h1>
+            <p class="page-subtitle">Research projects and code</p>
         </section>
 
-        <section class="projects-section">
+        <section class="projects-section equal-cards">
             <div class="project-card featured fade-in-delay-1">
                 <div class="project-content">
-                    <span class="project-tag">Current</span>
-                    <h2>Interpretable AI for Clinical Decision Support</h2>
-                    <p class="project-meta">NSF CAREER Award | 2024-2029</p>
+                    <span class="project-tag">Preprint</span>
+                    <h2><a href="https://arxiv.org/abs/2510.03821" target="_blank">Contrastive-SDE: Guiding Stochastic Differential Equations with Contrastive Learning for Unpaired Image-to-Image Translation</a></h2>
+                    <p class="project-meta">NIT Andhra Pradesh | with Revanth Eranki and Prof. Nagesh Bhattu Sristy | arXiv 2025</p>
                     <p class="project-description">
-                        This project aims to develop interpretable machine learning systems that can assist clinicians in making complex diagnostic and treatment decisions. We are building novel neural architectures that provide human-understandable explanations while maintaining high predictive accuracy. The project involves close collaboration with medical professionals at three major hospitals.
-                    </p>
-                    <p class="project-description">
-                        Key innovations include: (1) prototype-based neural networks that reference similar historical cases, (2) attention mechanisms that highlight relevant features in medical images and patient records, and (3) interactive visualization tools that allow clinicians to explore and validate model predictions.
+                        A time-dependent contrastive model, trained with SimCLR to keep domain-invariant features and discard domain-specific ones, guides a pretrained score-based SDE for unpaired image-to-image translation. It is comparable to the state of the art on several metrics across three tasks, converges faster, and needs no labels or classifier training.
                     </p>
                     <div class="project-links">
-                        <a href="#" class="project-link">Project Page</a>
-                        <a href="#" class="project-link">Publications</a>
-                        <a href="#" class="project-link">Code</a>
-                        <a href="#" class="project-link">Team</a>
+                        <a href="https://arxiv.org/abs/2510.03821" class="project-link" target="_blank">arXiv</a>
+                        <a href="https://github.com/kvn-257/Contrastive-SDE" class="project-link" target="_blank">Code</a>
                     </div>
                 </div>
                 <div class="project-visual">
                     <div class="project-placeholder">
-                        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="400" height="300" fill="currentColor" opacity="0.05"/>
-                            <text x="200" y="160" font-size="18" fill="currentColor" opacity="0.6" text-anchor="middle" font-family="Work Sans">Project Visualization</text>
-                        </svg>
+                        <img src="images/projects/contrastive-sde.jpg" alt="Cat to dog, male to female and wild animal to dog translations by Contrastive-SDE compared with EGSDE and ILVR.">
                     </div>
                 </div>
             </div>
 
             <div class="project-card fade-in-delay-2">
                 <div class="project-content">
-                    <span class="project-tag">Current</span>
-                    <h2>Human-AI Collaborative Decision Making</h2>
-                    <p class="project-meta">In collaboration with Industry Partner | 2023-Present</p>
+                    <span class="project-tag completed">Published</span>
+                    <h2><a href="/project/min-max-betweenness/">Deep Learning Based Link Prediction for Minimizing Maximum Betweenness</a></h2>
+                    <p class="project-meta">IIT Bhilai | with Prof. Rishi Ranjan Singh and Prof. Soumajit Pramanik | CNA 2024</p>
                     <p class="project-description">
-                        Investigating how humans and AI systems can effectively work together in high-stakes decision-making scenarios. We conduct user studies, develop interaction paradigms, and create computational models of human-AI collaboration. The project spans applications in healthcare, finance, and legal domains.
+                        We predict the missing link whose addition most reduces a network's maximum betweenness, without recomputing betweenness for every candidate edge. A GraphSAGE encoder feeds two MLPs that classify and rank missing edges, reaching 0.92 mAP@100 on scale-free Barab&aacute;si&ndash;Albert networks.
                     </p>
                     <div class="project-links">
-                        <a href="#" class="project-link">Publications</a>
-                        <a href="#" class="project-link">Demo</a>
+                        <a href="/project/min-max-betweenness/" class="project-link">Project Page</a>
+                        <a href="https://doi.org/10.1007/978-3-031-82439-5_20" class="project-link" target="_blank">Paper</a>
                     </div>
                 </div>
                 <div class="project-visual">
-                    <div class="project-placeholder">
-                        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="400" height="300" fill="currentColor" opacity="0.05"/>
-                            <text x="200" y="160" font-size="18" fill="currentColor" opacity="0.6" text-anchor="middle" font-family="Work Sans">Project Visualization</text>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="project-card fade-in-delay-3">
-                <div class="project-content">
-                    <span class="project-tag">Current</span>
-                    <h2>Robust and Fair Machine Learning</h2>
-                    <p class="project-meta">Grant Support from XYZ Foundation | 2023-2025</p>
-                    <p class="project-description">
-                        Developing techniques to build ML models that are simultaneously robust to adversarial attacks and fair across different demographic groups. We explore the inherent trade-offs between robustness and fairness, and propose methods to optimize both objectives jointly. The work has implications for deploying ML in sensitive domains.
-                    </p>
-                    <div class="project-links">
-                        <a href="#" class="project-link">Publications</a>
-                        <a href="#" class="project-link">Code</a>
-                    </div>
-                </div>
-                <div class="project-visual">
-                    <div class="project-placeholder">
-                        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="400" height="300" fill="currentColor" opacity="0.05"/>
-                            <text x="200" y="160" font-size="18" fill="currentColor" opacity="0.6" text-anchor="middle" font-family="Work Sans">Project Visualization</text>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="project-card fade-in-delay-4">
-                <div class="project-content">
-                    <span class="project-tag completed">Completed</span>
-                    <h2>Neural Dialogue Systems with Controllable Attributes</h2>
-                    <p class="project-meta">PhD Thesis Project | 2018-2022</p>
-                    <p class="project-description">
-                        My doctoral research focused on building dialogue systems that can flexibly control conversational attributes like persona, emotion, and style. I developed novel neural architectures and training procedures that enable fine-grained control while maintaining conversation quality. The work resulted in multiple publications and open-source releases.
-                    </p>
-                    <div class="project-links">
-                        <a href="#" class="project-link">Thesis</a>
-                        <a href="#" class="project-link">Publications</a>
-                        <a href="#" class="project-link">Code</a>
-                    </div>
-                </div>
-                <div class="project-visual">
-                    <div class="project-placeholder">
-                        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="400" height="300" fill="currentColor" opacity="0.05"/>
-                            <text x="200" y="160" font-size="18" fill="currentColor" opacity="0.6" text-anchor="middle" font-family="Work Sans">Project Visualization</text>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="project-card fade-in-delay-5">
-                <div class="project-content">
-                    <span class="project-tag completed">Completed</span>
-                    <h2>Privacy-Preserving Federated Learning</h2>
-                    <p class="project-meta">Collaboration with Tech Company | 2021-2022</p>
-                    <p class="project-description">
-                        Developed novel federated learning protocols with formal differential privacy guarantees. The work addressed key challenges in distributed learning including communication efficiency, model convergence, and privacy-utility trade-offs. Our methods were evaluated on large-scale real-world datasets.
-                    </p>
-                    <div class="project-links">
-                        <a href="#" class="project-link">Publications</a>
-                        <a href="#" class="project-link">Code</a>
-                    </div>
-                </div>
-                <div class="project-visual">
-                    <div class="project-placeholder">
-                        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="400" height="300" fill="currentColor" opacity="0.05"/>
-                            <text x="200" y="160" font-size="18" fill="currentColor" opacity="0.6" text-anchor="middle" font-family="Work Sans">Project Visualization</text>
-                        </svg>
-                    </div>
+                    <a href="/project/min-max-betweenness/" class="project-placeholder">
+                        <img src="project/min-max-betweenness/static/images/workflow.png" alt="Two-stage model: GraphSAGE node embeddings feed a classifier MLP and a ranking MLP.">
+                    </a>
                 </div>
             </div>
         </section>
 
-        <section class="open-source-section fade-in-delay-6">
-            <h2>Open Source Contributions</h2>
+        <section class="open-source-section fade-in-delay-4">
+            <h2>Other Projects</h2>
             <div class="os-grid">
                 <div class="os-card">
-                    <h3>InterpretML</h3>
-                    <p>A Python package for interpretable machine learning with support for multiple explanation methods.</p>
-                    <a href="#" class="os-link">View on GitHub →</a>
+                    <h3>Diffusion TPP for Event Prediction</h3>
+                    <p>An unofficial implementation of <a href="https://arxiv.org/abs/2311.01033" target="_blank">Non-Autoregressive Diffusion-based Temporal Point Processes</a> for continuous-time, long-term event prediction.</p>
+                    <a href="https://github.com/kvn-257/Diffusion-TPP-for-Event-Prediction" class="os-link" target="_blank">View on GitHub →</a>
                 </div>
                 <div class="os-card">
-                    <h3>FairLearn</h3>
-                    <p>Tools and algorithms for assessing and improving fairness in machine learning models.</p>
-                    <a href="#" class="os-link">View on GitHub →</a>
-                </div>
-                <div class="os-card">
-                    <h3>DialogueKit</h3>
-                    <p>Framework for building and evaluating neural dialogue systems with various control mechanisms.</p>
-                    <a href="#" class="os-link">View on GitHub →</a>
+                    <h3>Telugu-to-English Transliteration</h3>
+                    <p>A GRU model with attention, trained in PyTorch, that transliterates Telugu to English. It is deployed in an Android app that reads Telugu text from images with OCR.</p>
+                    <a href="https://github.com/kvn-257/Transliteration-Telugu-to-English" class="os-link" target="_blank">View on GitHub →</a>
                 </div>
             </div>
         </section>
@@ -193,7 +107,7 @@
     <footer class="footer">
         <div class="footer-content">
             <p>&copy; 2026 Venkata Narendra Kotyada. All rights reserved.</p>
-            <p>Last updated: March 2026</p>
+            <p>Last updated: October 2026</p>
         </div>
     </footer>
 

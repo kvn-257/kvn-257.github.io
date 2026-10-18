@@ -1,0 +1,459 @@
+/* ===========================
+   Project page styles
+   Look adapted from the Academic Project Page Template (Bulma-based),
+   written standalone so the page needs no CSS framework.
+   =========================== */
+
+:root {
+    --text: #4a4a4a;
+    --text-strong: #363636;
+    --text-muted: #7a7a7a;
+    --link: hsl(204, 86%, 53%);
+    --button: #363636;
+    --button-hover: #2f2f2f;
+    --bg: #ffffff;
+    --bg-light: #f5f5f5;
+    --bg-footer: #fafafa;
+    --border: #dbdbdb;
+    --accent: #000000;
+    --font-heading: 'Google Sans', 'Noto Sans', sans-serif;
+    --font-body: 'Noto Sans', sans-serif;
+    --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    --max-desktop: 960px;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text);
+    background-color: var(--bg);
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: var(--link);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--text-strong);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+sup {
+    font-size: 0.75em;
+}
+
+/* ===========================
+   Layout
+   =========================== */
+
+.section {
+    padding: 3rem 1.5rem;
+    scroll-margin-top: 1rem;
+}
+
+.section.is-light {
+    background-color: var(--bg-light);
+}
+
+.container {
+    max-width: var(--max-desktop);
+    margin: 0 auto;
+}
+
+.narrow {
+    max-width: 768px;
+    margin: 0 auto;
+}
+
+.title {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--text-strong);
+    line-height: 1.125;
+    margin: 0 0 1.5rem;
+}
+
+.title.is-1 {
+    font-size: 3rem;
+}
+
+.title.is-3 {
+    font-size: 2rem;
+    text-align: center;
+}
+
+.title.is-5 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.content p {
+    margin: 0 0 1em;
+    text-align: justify;
+}
+
+.content p:last-child {
+    margin-bottom: 0;
+}
+
+.content b,
+.content strong {
+    color: var(--text-strong);
+}
+
+/* ===========================
+   Header
+   =========================== */
+
+.publication-header {
+    padding: 3rem 1.5rem 3rem;
+    text-align: center;
+    font-family: var(--font-heading);
+}
+
+.publication-title {
+    margin-bottom: 0.75rem;
+}
+
+.publication-venue {
+    margin: 0.15rem 0 1rem;
+    font-size: 1.45rem;
+    font-weight: 500;
+    color: #555;
+}
+
+.publication-venue span {
+    color: var(--accent);
+}
+
+.publication-authors {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.publication-authors a {
+    color: var(--link);
+}
+
+.publication-authors a:hover {
+    text-decoration: underline;
+}
+
+.publication-affiliations {
+    font-size: 1.1rem;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+}
+
+.author-block {
+    display: inline-block;
+    margin: 0 0.2rem;
+}
+
+.publication-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    height: 2.5em;
+    padding: 0 1.25em;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    color: #fff;
+    background-color: var(--button);
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.button:hover {
+    color: #fff;
+    background-color: var(--button-hover);
+}
+
+.button svg {
+    width: 1.1em;
+    height: 1.1em;
+}
+
+.access-note {
+    max-width: 600px;
+    margin: 1rem auto 0;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* ===========================
+   Figures
+   =========================== */
+
+.figure {
+    margin: 2rem auto 0;
+    text-align: center;
+}
+
+.figure img {
+    display: block;
+    margin: 0 auto;
+}
+
+.figure img.figure-medium {
+    max-width: 70%;
+}
+
+.figure figcaption {
+    max-width: 760px;
+    margin: 0.75rem auto 0;
+    font-size: 0.95rem;
+}
+
+.figure figcaption b {
+    color: var(--text-strong);
+}
+
+.figure-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    max-width: 840px;
+    margin: 2rem auto 0;
+}
+
+.figure-grid .figure {
+    margin: 0;
+}
+
+.figure-grid figcaption {
+    font-size: 0.9rem;
+}
+
+.figure-grid img {
+    border-radius: 6px;
+}
+
+/* ===========================
+   Boxes & columns
+   =========================== */
+
+.columns {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.columns.is-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.columns.is-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+}
+
+.box {
+    height: 100%;
+    padding: 1.25rem;
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.02);
+}
+
+.box p {
+    margin: 0;
+}
+
+/* ===========================
+   Math
+   =========================== */
+
+.equation {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.equation-note {
+    font-size: 0.9rem;
+    text-align: center !important;
+    color: var(--text-muted);
+}
+
+/* ===========================
+   Results table
+   =========================== */
+
+.table-wrap {
+    overflow-x: auto;
+    margin-top: 2rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+    background-color: #fff;
+}
+
+.table th,
+.table td {
+    padding: 0.5em 0.75em;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.table th:first-child,
+.table td:first-child {
+    text-align: left;
+}
+
+.table th {
+    color: var(--text-strong);
+    border-bottom-width: 2px;
+}
+
+.table tr.is-muted td {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.table-caption {
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+/* ===========================
+   BibTeX
+   =========================== */
+
+.bibtex-block {
+    position: relative;
+}
+
+.bibtex .title {
+    text-align: left;
+}
+
+.bibtex pre {
+    margin: 0;
+    padding: 1.25em 1.5em;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    line-height: 1.5;
+    color: var(--text);
+    background-color: var(--bg-light);
+}
+
+.section.is-light .bibtex-block pre {
+    background-color: #fff;
+}
+
+.copy-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.3em 0.9em;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    color: var(--text);
+    background-color: #fff;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    cursor: pointer;
+}
+
+.copy-button:hover {
+    border-color: var(--text-muted);
+}
+
+/* ===========================
+   Footer
+   =========================== */
+
+.footer {
+    padding: 3rem 1.5rem 6rem;
+    background-color: var(--bg-footer);
+}
+
+.footer p {
+    margin: 0 0 0.5em;
+    color: gray;
+    font-size: 0.95rem;
+}
+
+.footer a {
+    color: gray;
+    text-decoration: underline;
+}
+
+.footer a:hover {
+    color: var(--text-strong);
+}
+
+/* ===========================
+   Responsive
+   =========================== */
+
+@media screen and (max-width: 768px) {
+    .title.is-1 {
+        font-size: 2.1rem;
+    }
+
+    .figure img.figure-medium {
+        max-width: 100%;
+    }
+
+    .title.is-3 {
+        font-size: 1.6rem;
+    }
+
+    .publication-venue {
+        font-size: 1.2rem;
+    }
+
+    .publication-authors {
+        font-size: 1.1rem;
+    }
+
+    .publication-affiliations {
+        font-size: 1rem;
+    }
+
+    .columns.is-3,
+    .columns.is-2,
+    .figure-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .content p {
+        text-align: left;
+    }
+}
