@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  ============================================================================
+  BLOG POST TEMPLATE  (blog/_template/ is never published: Jekyll skips
+  folders whose names start with "_")
+  ----------------------------------------------------------------------------
+  New post: copy this folder to blog/<slug>/, then replace every
+  "my-metric" with <slug> and every "Post Title" with the real title.
+
+  Styles live in ../assets/blog.css and behaviour in ../assets/blog.js,
+  shared by all posts. Put this post's images in ./images/.
+
+  Math: inline $x^2$, display $$ ... $$. Write a literal dollar sign as \$.
+  Numbered equations: \begin{equation} ... \label{eq:name} \end{equation},
+  then refer to them with \eqref{eq:name}.
+
+  Before publishing: remove the "robots noindex" line below, fill in the
+  date, description and preview image.
+  ============================================================================
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- TODO: delete this line when the post is ready to go public -->
+<meta name="robots" content="noindex">
+
+<title>Post Title</title>
+<meta name="description" content="One-sentence summary of the post. Shown in search results and link previews.">
+<link rel="canonical" href="https://kvn-257.github.io/blog/my-metric/">
+<link rel="icon" type="image/png" href="../../images/favicon.png">
+
+<!-- Open Graph / link previews -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="Post Title">
+<meta property="og:description" content="One-sentence summary of the post. Shown in search results and link previews.">
+<meta property="og:url" content="https://kvn-257.github.io/blog/my-metric/">
+<meta property="og:site_name" content="Venkata Narendra Kotyada">
+<meta property="article:published_time" content="2026-10-31">
+<meta property="article:author" content="Venkata Narendra Kotyada">
+<!-- Uncomment once you have a preview image at ./images/preview.png
+<meta property="og:image" content="https://kvn-257.github.io/blog/my-metric/images/preview.png">
+<meta name="twitter:image" content="https://kvn-257.github.io/blog/my-metric/images/preview.png">
+-->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Post Title">
+<meta name="twitter:description" content="One-sentence summary of the post. Shown in search results and link previews.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Source+Sans+3:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/blog.css">
+
+<script>
+// Reveal the page only once math is typeset, to avoid a flash of raw LaTeX.
+function revealPage() {
+  if (document.body) document.body.classList.add('math-ready');
+}
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    processEscapes: true,
+    tags: 'ams'                       // numbers \begin{equation} blocks
+  },
+  startup: {
+    pageReady() {
+      return MathJax.startup.defaultPageReady().then(revealPage);
+    }
+  }
+};
+// Safety net: reveal anyway if MathJax fails to load (CDN down, offline, etc.)
+setTimeout(revealPage, 3000);
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+<noscript><style>body { opacity: 1; }</style></noscript>
+</head>
+
+<body>
+
+<div class="progress-bar" id="progress-bar" aria-hidden="true"></div>
+
+<header class="site-nav">
+  <a href="/" class="site-nav-name">← Venkata Narendra Kotyada</a>
+</header>
+
+<!-- Sidebar TOC (shows on screens ≥1280px). Each href must match a <section id>. -->
+<nav class="toc" aria-label="Table of contents">
+  <p class="toc-title">Contents</p>
+  <ol>
+    <li><a href="#introduction">§1 · Introduction</a></li>
+    <li><a href="#definition">§2 · Definition</a></li>
+    <li><a href="#intuition">§3 · Intuition</a></li>
+    <li><a href="#implementation">§4 · Implementation</a></li>
+    <li><a href="#experiments">§5 · Experiments</a></li>
+    <li><a href="#summary">§6 · Summary</a></li>
+    <li><a href="#references">References</a></li>
+    <li><a href="#citation">Citation</a></li>
+  </ol>
+</nav>
+
+<article>
+
+<header class="post-header">
+  <p class="eyebrow">Tutorial · Evaluation metrics · <time datetime="2026-10-31">October 31, 2026</time></p>
+  <h1>Post Title</h1>
+  <p class="subtitle">A one- or two-line subtitle that says what the reader will learn and why it matters.</p>
+
+  <!-- Optional banner image (also used as the link-preview image above)
+  <img class="post-preview-image" src="images/preview.png" alt="Describe the image.">
+  -->
+
+  <div class="callout">
+    <p><strong>Scope.</strong> Optional note on what this post covers, what it assumes the reader knows, and what it leaves out. Delete this box if you don't need it.</p>
+  </div>
+</header>
+
+
+<!-- ======================================================================= -->
+<section id="introduction">
+
+<h2>§1. Introduction</h2>
+
+<p>Opening paragraph: what is the metric, and what problem does it solve? Inline math works like this: the metric maps a prediction $\hat y$ and a reference $y$ to a score $s(\hat y, y) \in [0, 1]$.</p>
+
+<p>Use <strong>bold</strong> for the key term the first time it appears, and <em>italics</em> for emphasis.</p>
+
+<h3>Why existing metrics fall short</h3>
+
+<p>A subsection. Lists look like this:</p>
+
+<ul>
+  <li><strong>Problem one.</strong> A short explanation.</li>
+  <li><strong>Problem two.</strong> A short explanation.</li>
+  <li><strong>Problem three.</strong> A short explanation.</li>
+</ul>
+
+<div class="callout">
+<p>A callout for side notes, caveats, or "worth knowing" asides that would interrupt the main text.</p>
+</div>
+
+</section>
+
+<hr class="section-divider">
+
+<!-- ======================================================================= -->
+<section id="definition">
+
+<h2>§2. Definition</h2>
+
+<p>An unnumbered display equation:</p>
+
+<p>$$s(\hat y, y) = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}\big[\hat y_i = y_i\big].$$</p>
+
+<p>A numbered equation you can refer back to:</p>
+
+\begin{equation}
+  \text{Score} = \frac{\text{TP}}{\text{TP} + \frac{1}{2}(\text{FP} + \text{FN})}
+  \label{eq:main}
+\end{equation}
+
+<p>Equation \eqref{eq:main} is referenced here and links back to the equation.</p>
+
+<h3>Step-by-step derivation</h3>
+
+<p>A step chain for showing how one quantity reduces to the next. Delete it if you don't need it.</p>
+
+<div class="reduction-chain">
+  <div class="step goal">
+    <span class="step-label">Goal</span>
+    What we want to measure, in words.
+  </div>
+  <div class="arrow">
+    <span class="arrow-symbol">↓</span>
+    <span class="arrow-label theorem">by a theorem / identity <em>(exact)</em></span>
+  </div>
+  <div class="step">
+    <span class="step-label">Step 1</span>
+    An equivalent formulation, e.g. $P = Q \iff \varphi_P = \varphi_Q$.
+  </div>
+  <div class="arrow">
+    <span class="arrow-symbol">↓</span>
+    <span class="arrow-label approximation">estimate from samples <em>(approximation)</em></span>
+  </div>
+  <div class="step final">
+    <span class="step-label">What we compute</span>
+    The final formula used in practice.
+  </div>
+</div>
+
+</section>
+
+<hr class="section-divider">
+
+<!-- ======================================================================= -->
+<section id="intuition">
+
+<h2>§3. Intuition</h2>
+
+<p>Figures go in a <code>&lt;figure&gt;</code> box with a caption. Use an image file:</p>
+
+<!-- Image figure: put the file in ./images/ and uncomment.
+<figure>
+  <img src="images/figure-1.png" alt="Describe the figure for screen readers.">
+  <figcaption><span class="fig-label">Figure 3.1:</span> Caption text.</figcaption>
+</figure>
+-->
+
+<p>…or draw directly with inline SVG, as the reference post does (text classes: <code>th</code> for labels, <code>ts</code> for small notes):</p>
+
+<figure>
+<svg viewBox="0 0 680 160" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>Placeholder pipeline diagram</title>
+<desc>Prediction and reference both feed into the metric, which outputs a score.</desc>
+
+<rect x="30" y="30" width="110" height="36" rx="6" fill="none" stroke="var(--t)" stroke-width="1.2"/>
+<text class="th" x="85" y="53" text-anchor="middle">prediction ŷ</text>
+
+<rect x="30" y="94" width="110" height="36" rx="6" fill="none" stroke="var(--t)" stroke-width="1.2"/>
+<text class="th" x="85" y="117" text-anchor="middle">reference y</text>
+
+<path d="M 140,48 L 230,48 L 230,74 L 268,74" fill="none" stroke="var(--t)" stroke-width="1.2"/>
+<path d="M 140,112 L 230,112 L 230,86 L 268,86" fill="none" stroke="var(--t)" stroke-width="1.2"/>
+<polygon points="272,74 266,71 266,77" fill="var(--t)"/>
+<polygon points="272,86 266,83 266,89" fill="var(--t)"/>
+
+<rect x="274" y="56" width="130" height="48" rx="6" fill="var(--highlight)" fill-opacity="0.10" stroke="var(--highlight)" stroke-width="1.4"/>
+<text class="th" x="339" y="85" text-anchor="middle">metric s(·,·)</text>
+
+<line x1="404" y1="80" x2="490" y2="80" stroke="var(--t)" stroke-width="1.2"/>
+<polygon points="494,80 488,77 488,83" fill="var(--t)"/>
+<text class="th" x="540" y="85" text-anchor="middle">score</text>
+<text class="ts" x="540" y="103" text-anchor="middle">higher is better</text>
+</svg>
+<figcaption><span class="fig-label">Figure 3.1:</span> Placeholder diagram. Replace with your own figure and caption.</figcaption>
+</figure>
+
+<div class="slogan">
+<p><strong>Key takeaway:</strong> a highlighted box for the one sentence you want readers to remember.</p>
+</div>
+
+</section>
+
+<hr class="section-divider">
+
+<!-- ======================================================================= -->
+<section id="implementation">
+
+<h2>§4. Implementation</h2>
+
+<p>Code blocks get a copy button automatically. Inside <code>&lt;pre&gt;</code>, write <code>&lt;</code> as <code>&amp;lt;</code>, <code>&gt;</code> as <code>&amp;gt;</code> and <code>&amp;</code> as <code>&amp;amp;</code>.</p>
+
+<pre><code>import torch
+
+def my_metric(pred: torch.Tensor, target: torch.Tensor) -&gt; torch.Tensor:
+    """Replace with your metric. Returns a scalar."""
+    return (pred == target).float().mean()</code></pre>
+<p class="code-caption">Optional caption under a code block.</p>
+
+<p>A table of symbols (the <code>mono</code> style sets the first two columns in code font):</p>
+
+<table class="data-table mono">
+<thead>
+<tr><th>symbol</th><th>shape</th><th>meaning</th></tr>
+</thead>
+<tbody>
+<tr><td>pred</td><td>(N,)</td><td>Model predictions.</td></tr>
+<tr><td>target</td><td>(N,)</td><td>Ground-truth labels.</td></tr>
+</tbody>
+</table>
+
+</section>
+
+<hr class="section-divider">
+
+<!-- ======================================================================= -->
+<section id="experiments">
+
+<h2>§5. Experiments</h2>
+
+<p>A results table. Add <code>class="num"</code> to right-align numbers and <code>class="best"</code> to bold the best value.</p>
+
+<table class="data-table">
+<thead>
+<tr><th>Method</th><th class="num">Metric A ↑</th><th class="num">Metric B ↓</th><th class="num">Ours ↑</th></tr>
+</thead>
+<tbody>
+<tr><td>Baseline 1</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">0.00</td></tr>
+<tr><td>Baseline 2</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">0.00</td></tr>
+<tr><td>Proposed</td><td class="num best">0.00</td><td class="num best">0.00</td><td class="num best">0.00</td></tr>
+</tbody>
+</table>
+
+<h4>A smaller heading (h4)</h4>
+
+<p>For fine-grained points inside a subsection.</p>
+
+</section>
+
+<hr class="section-divider">
+
+<!-- ======================================================================= -->
+<section id="summary">
+
+<h2>§6. Summary</h2>
+
+<p>Wrap up: what the reader should now understand, and where to go next.</p>
+
+<h3>Acknowledgements</h3>
+
+<p>Thanks to … for feedback on this post.</p>
+
+</section>
+
+<!-- ======================================================================= -->
+<section id="references">
+
+<h2>References</h2>
+
+<table class="data-table mono">
+<thead>
+<tr><th>paper</th><th>role in this post</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Author One and Author Two. <a href="https://arxiv.org/">Paper Title</a>. Venue, Year.</td>
+<td>Why this paper matters for the post.</td>
+</tr>
+<tr>
+<td>Author Three. <a href="https://arxiv.org/">Paper Title</a>. Venue, Year.</td>
+<td>Why this paper matters for the post.</td>
+</tr>
+</tbody>
+</table>
+
+</section>
+
+<hr class="section-divider">
+
+<!-- ======================================================================= -->
+<section id="citation">
+
+<h2>Citation</h2>
+
+<p>If you found this post useful and would like to cite it:</p>
+
+<p><strong>Plain text:</strong></p>
+
+<div class="citation-box">
+  <button class="copy-btn" data-copy-target="#citation-plain" aria-label="Copy plain-text citation" title="Copy">
+    <svg class="icon-copy" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="5" y="5" width="9" height="9" rx="1.5"/>
+      <path d="M2.5 11V3.5A1.5 1.5 0 0 1 4 2H11"/>
+    </svg>
+  </button>
+  <p id="citation-plain">Kotyada, Venkata Narendra. &ldquo;Post Title.&rdquo; 2026. https://kvn-257.github.io/blog/my-metric/</p>
+</div>
+
+<p><strong>BibTeX:</strong></p>
+
+<div class="citation-box bibtex">
+  <button class="copy-btn" data-copy-target="#citation-bibtex" aria-label="Copy BibTeX citation" title="Copy">
+    <svg class="icon-copy" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="5" y="5" width="9" height="9" rx="1.5"/>
+      <path d="M2.5 11V3.5A1.5 1.5 0 0 1 4 2H11"/>
+    </svg>
+  </button>
+  <pre><code id="citation-bibtex">@misc{kotyada2026mymetric,
+  author = {Kotyada, Venkata Narendra},
+  title  = {{Post Title}},
+  year   = {2026},
+  url    = {https://kvn-257.github.io/blog/my-metric/},
+  note   = {Blog post}
+}</code></pre>
+</div>
+
+</section>
+
+</article>
+
+<script src="../assets/blog.js"></script>
+</body>
+</html>
