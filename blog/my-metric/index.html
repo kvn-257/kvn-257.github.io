@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<!--
+  <!--
   ============================================================================
   Post: Don't Get Stuck: A Metric for Scanpath Prediction
   URL:  https://kvn-257.github.io/blog/my-metric/
@@ -21,481 +22,682 @@
   and add a preview image if you want one.
   ============================================================================
 -->
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- TODO: delete this line when the post is ready to go public -->
-<meta name="robots" content="noindex">
+  <!-- TODO: delete this line when the post is ready to go public -->
+  <meta name="robots" content="noindex">
 
-<title>Don't Get Stuck: A Metric for Scanpath Prediction</title>
-<meta name="description" content="A scanpath model looks at a video and predicts, frame by frame, where a person would look. How do we score such a prediction?">
-<link rel="canonical" href="https://kvn-257.github.io/blog/my-metric/">
-<link rel="icon" type="image/png" href="../../images/favicon.png">
+  <title>Don't Get Stuck: A Metric for Scanpath Prediction</title>
+  <meta name="description"
+    content="A scanpath model looks at a video and predicts, frame by frame, where a person would look. How do we score such a prediction?">
+  <link rel="canonical" href="https://kvn-257.github.io/blog/my-metric/">
+  <link rel="icon" type="image/png" href="../../images/favicon.png">
 
-<!-- Open Graph / link previews -->
-<meta property="og:type" content="article">
-<meta property="og:title" content="Don't Get Stuck: A Metric for Scanpath Prediction">
-<meta property="og:description" content="A scanpath model looks at a video and predicts, frame by frame, where a person would look. How do we score such a prediction?">
-<meta property="og:url" content="https://kvn-257.github.io/blog/my-metric/">
-<meta property="og:site_name" content="Venkata Narendra Kotyada">
-<meta property="article:published_time" content="2026-10-31">
-<meta property="article:author" content="Venkata Narendra Kotyada">
-<!-- Uncomment once you have a preview image at ./images/preview.png
+  <!-- Open Graph / link previews -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Don't Get Stuck: A Metric for Scanpath Prediction">
+  <meta property="og:description"
+    content="A scanpath model looks at a video and predicts, frame by frame, where a person would look. How do we score such a prediction?">
+  <meta property="og:url" content="https://kvn-257.github.io/blog/my-metric/">
+  <meta property="og:site_name" content="Venkata Narendra Kotyada">
+  <meta property="article:published_time" content="2026-10-31">
+  <meta property="article:author" content="Venkata Narendra Kotyada">
+  <!-- Uncomment once you have a preview image at ./images/preview.png
 <meta property="og:image" content="https://kvn-257.github.io/blog/my-metric/images/preview.png">
 <meta name="twitter:image" content="https://kvn-257.github.io/blog/my-metric/images/preview.png">
 -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Don't Get Stuck: A Metric for Scanpath Prediction">
-<meta name="twitter:description" content="A scanpath model looks at a video and predicts, frame by frame, where a person would look. How do we score such a prediction?">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Don't Get Stuck: A Metric for Scanpath Prediction">
+  <meta name="twitter:description"
+    content="A scanpath model looks at a video and predicts, frame by frame, where a person would look. How do we score such a prediction?">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Source+Sans+3:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/blog.css">
-<!-- KaTeX renders the live equations inside the interactive figures -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
-<link rel="stylesheet" href="widgets.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Source+Sans+3:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../assets/blog.css">
+  <!-- KaTeX renders the live equations inside the interactive figures -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <link rel="stylesheet" href="widgets.css">
 
-<script>
-// Reveal the page only once math is typeset, to avoid a flash of raw LaTeX.
-function revealPage() {
-  if (document.body) document.body.classList.add('math-ready');
-}
-window.MathJax = {
-  tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']],
-    displayMath: [['$$', '$$'], ['\\[', '\\]']],
-    processEscapes: true,
-    tags: 'ams'                       // numbers \begin{equation} blocks
-  },
-  startup: {
-    pageReady() {
-      return MathJax.startup.defaultPageReady().then(revealPage);
+  <script>
+    // Reveal the page only once math is typeset, to avoid a flash of raw LaTeX.
+    function revealPage() {
+      if (document.body) document.body.classList.add('math-ready');
     }
-  }
-};
-// Safety net: reveal anyway if MathJax fails to load (CDN down, offline, etc.)
-setTimeout(revealPage, 3000);
-</script>
-<script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
-<noscript><style>body { opacity: 1; }</style></noscript>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        tags: 'ams'                       // numbers \begin{equation} blocks
+      },
+      startup: {
+        pageReady() {
+          return MathJax.startup.defaultPageReady().then(revealPage);
+        }
+      }
+    };
+    // Safety net: reveal anyway if MathJax fails to load (CDN down, offline, etc.)
+    setTimeout(revealPage, 3000);
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+  <noscript>
+    <style>
+      body {
+        opacity: 1;
+      }
+    </style>
+  </noscript>
 </head>
 
 <body>
 
-<div class="progress-bar" id="progress-bar" aria-hidden="true"></div>
+  <div class="progress-bar" id="progress-bar" aria-hidden="true"></div>
 
-<header class="site-nav">
-  <a href="/" class="site-nav-name">← Venkata Narendra Kotyada</a>
-</header>
+  <header class="site-nav">
+    <a href="/" class="site-nav-name">← Venkata Narendra Kotyada</a>
+  </header>
 
-<!-- Sidebar TOC (shows on screens ≥1280px). Each href must match a <section id>. -->
-<nav class="toc" aria-label="Table of contents">
-  <p class="toc-title">Contents</p>
-  <ol>
-    <li><a href="#introduction">Introduction</a></li>
-    <li><a href="#setup">§1 · Setup</a></li>
-    <li><a href="#score-shape">§2 · The shape of every score</a></li>
-    <li><a href="#exploration">§3 · Outside: exploration</a></li>
-    <li><a href="#tracking">§4 · Inside: tracking</a></li>
-    <li><a href="#final-metric">§5 · The final metric</a></li>
-    <li><a href="#citation">Citation</a></li>
-  </ol>
-</nav>
+  <!-- Sidebar TOC (shows on screens ≥1280px). Each href must match a <section id>. -->
+  <nav class="toc" aria-label="Table of contents">
+    <p class="toc-title">Contents</p>
+    <ol>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#setup">§1 · Setup</a></li>
+      <li><a href="#score-shape">§2 · The shape of every score</a></li>
+      <li><a href="#exploration">§3 · Outside: exploration</a></li>
+      <li><a href="#tracking">§4 · Inside: tracking</a></li>
+      <li><a href="#final-metric">§5 · The final metric</a></li>
+      <li><a href="#citation">Citation</a></li>
+    </ol>
+  </nav>
 
-<!-- with-stage: on wide screens each figure sits in a sticky column on the right,
+  <!-- with-stage: on wide screens each figure sits in a sticky column on the right,
      shown from its data-stage marker until the next one (see blog.js / blog.css) -->
-<article class="with-stage">
-<div class="post-main">
+  <article class="with-stage">
+    <div class="post-main">
 
-<header class="post-header">
-  <p class="eyebrow">Evaluation metrics · Scanpath prediction · <time datetime="2026-10-31">October 31, 2026</time></p>
-  <h1>Don't Get Stuck: A Metric for Scanpath Prediction</h1>
+      <header class="post-header">
+        <p class="eyebrow">Evaluation metrics · Scanpath prediction · <time datetime="2026-10-31">October 31,
+            2026</time></p>
+        <h1>Don't Get Stuck: A Metric for Scanpath Prediction</h1>
 
-  <!-- Optional subtitle line under the title
+        <!-- Optional subtitle line under the title
   <p class="subtitle">…</p>
   -->
 
-  <!-- Optional banner image (also used as the link-preview image above)
+        <!-- Optional banner image (also used as the link-preview image above)
   <img class="post-preview-image" src="images/preview.png" alt="Describe the image.">
   -->
-</header>
+      </header>
 
 
-<!-- ======================================================================= -->
-<section id="introduction">
+      <!-- ======================================================================= -->
+      <section id="introduction">
 
-<p>A scanpath model looks at a video and predicts, frame by frame, where a person would look. How do we score such a prediction?</p>
+        <p>A scanpath model looks at a video and predicts, frame by frame, where a person would look. How do we score
+          such a prediction?</p>
 
-<p>The simplest idea is to check, at every frame, how salient the predicted point is (how many people actually looked there) and add it up. But this rewards a model that finds the most salient object and parks its gaze on it for the whole video. Real viewers don't behave like that. They</p>
+        <p>The simplest idea is to check, at every frame, how salient the predicted point is (how many people actually
+          looked there) and add it up. But this rewards a model that finds the most salient object and parks its gaze on
+          it for the whole video. Real viewers don't behave like that. They</p>
 
-<ul>
-  <li>spend most of their time on salient content,</li>
-  <li>move between salient objects when there are several,</li>
-  <li>and every now and then leave them to explore the rest of the scene, then come back.</li>
-</ul>
+        <ul>
+          <li>spend most of their time on salient content,</li>
+          <li>move between salient objects when there are several,</li>
+          <li>and every now and then leave them to explore the rest of the scene, then come back.</li>
+        </ul>
 
-<p>What they never do is <strong>get stuck</strong>, whether outside the salient content, frozen on one spot, or locked on to a single object. In this post we build a metric that rewards the behaviours above and penalizes getting stuck. We build it one case at a time, adding one piece to the equation at each step.</p>
+        <p>What they never do is <strong>get stuck</strong>, whether outside the salient content, frozen on one spot, or
+          locked on to a single object. In this post we build a metric that rewards the behaviours above and penalizes
+          getting stuck. We build it one case at a time, adding one piece to the equation at each step.</p>
 
-</section>
+      </section>
 
-<hr class="section-divider">
+      <hr class="section-divider">
 
-<!-- ======================================================================= -->
-<section id="setup">
+      <!-- ======================================================================= -->
+      <section id="setup">
 
-<h2>§1. Setup</h2>
+        <h2>§1. Setup</h2>
 
-<ul>
-  <li>The video has frames $t = 1, 2, \dots, \tau$. <strong>One step is one frame.</strong></li>
-  <li>The model predicts a fixation $g(t) = \big(x(t), y(t)\big)$ at every frame.</li>
-  <li>$S_t$ is the ground-truth saliency map of frame $t$. It is made from the gaze of all human viewers, blurred with a Gaussian of width $\sigma$, and scaled so that its maximum is $1$.</li>
-  <li>The <strong>saliency at the prediction</strong> is
-    $$w(t) = S_t\big(g(t)\big) \in [0, 1].$$
-    $w(t) \approx 1$ means the model looks where most people look. $w(t) \approx 0$ means it looks where nobody looks.</li>
-  <li>A fixation is <strong>inside a salient region</strong> if $w(t) \ge \theta$ and <strong>outside</strong> if $w(t) &lt; \theta$. We use $\theta = 0.3$.</li>
-  <li>$\mathcal{C}$ is the set of frames where a new shot starts (scene cuts). The first frame counts as a cut, $1 \in \mathcal{C}$.</li>
-</ul>
+        <ul>
+          <li>The video has frames $t = 1, 2, \dots, \tau$. <strong>One step is one frame.</strong></li>
+          <li>The model predicts a fixation $g(t) = \big(x(t), y(t)\big)$ at every frame.</li>
+          <li>$S_t$ is the ground-truth saliency map of frame $t$. It is made from the gaze of all human viewers,
+            blurred with a Gaussian of width $\sigma$, and scaled so that its maximum is $1$.</li>
+          <li>The <strong>saliency at the prediction</strong> is
+            $$w(t) = S_t\big(g(t)\big) \in [0, 1].$$
+            $w(t) \approx 1$ means the model looks where most people look. $w(t) \approx 0$ means it looks where nobody
+            looks.</li>
+          <li>A fixation is <strong>inside a salient region</strong> if $w(t) \ge \theta$ and <strong>outside</strong>
+            if $w(t) &lt; \theta$. We use $\theta = 0.3$.</li>
+          <li>$\mathcal{C}$ is the set of frames where a new shot starts (scene cuts). The first frame counts as a cut,
+            $1 \in \mathcal{C}$.</li>
+        </ul>
 
-</section>
+      </section>
 
-<hr class="section-divider">
+      <hr class="section-divider">
 
-<!-- ======================================================================= -->
-<section id="score-shape">
+      <!-- ======================================================================= -->
+      <section id="score-shape">
 
-<h2>§2. The shape of every score</h2>
+        <h2>§2. The shape of every score</h2>
 
-<p>Every piece of the metric is built the same way:</p>
+        <p>Every piece of the metric is built the same way:</p>
 
-<p>$$
-\text{score}(t) \;=\; \underbrace{\text{weight}(t) \times \text{amplitude}(t)}_{\text{how much a fixation is worth}}
-\;\times\; \underbrace{\text{decay}(t)}_{\text{how long it has kept doing this}}
-$$</p>
+        <p>$$
+          \text{score}(t) \;=\; \underbrace{\text{weight}(t) \times \text{amplitude}(t)}_{\text{how much a fixation is
+          worth}}
+          \;\times\; \underbrace{\text{decay}(t)}_{\text{how long it has kept doing this}}
+          $$</p>
 
-<p>The weight and the amplitude describe a single fixation. The <strong>decay</strong> has memory. It starts at $1$, shrinks every step the model keeps doing the same thing, and comes back up when the model does something new. All the cases below are about the decay.</p>
+        <p>The weight and the amplitude describe a single fixation. The <strong>decay</strong> has memory. It starts at
+          $1$, shrinks every step the model keeps doing the same thing, and comes back up when the model does something
+          new. All the cases below are about the decay.</p>
 
-<h3>The decay building block</h3>
+        <h3>The decay building block</h3>
 
-<p>We use one exponential decay throughout:</p>
+        <p>We use one exponential decay throughout:</p>
 
-<p>$$D(n) = p^{\,n/N}$$</p>
+        <p>$$D(n) = p^{\,n/N}$$</p>
 
-<ul>
-  <li>$n$ is the number of steps the behaviour has lasted so far.</li>
-  <li>$N$ is a length scale in steps.</li>
-  <li>$p$ is the value the decay reaches after $N$ steps, because $D(N) = p$. We use $p = 0.01$.</li>
-</ul>
+        <ul>
+          <li>$n$ is the number of steps the behaviour has lasted so far.</li>
+          <li>$N$ is a length scale in steps.</li>
+          <li>$p$ is the value the decay reaches after $N$ steps, because $D(N) = p$. We use $p = 0.01$.</li>
+        </ul>
 
-<p>This is an ordinary exponential, $p^{n/N} = e^{-n \ln(1/p)/N}$, with time constant $N/\ln(1/p)$. We write it with $p$ and $N$ because $N$ has a direct meaning that we can <strong>measure from human viewers</strong>: "after a typical human-length stretch of this behaviour, the score has dropped to $p$".</p>
+        <p>This is an ordinary exponential, $p^{n/N} = e^{-n \ln(1/p)/N}$, with time constant $N/\ln(1/p)$. We write it
+          with $p$ and $N$ because $N$ has a direct meaning that we can <strong>measure from human viewers</strong>:
+          "after a typical human-length stretch of this behaviour, the score has dropped to $p$".</p>
 
-</section>
+      </section>
 
-<hr class="section-divider">
+      <hr class="section-divider">
 
-<!-- ======================================================================= -->
-<section id="exploration" data-stage="fig-case1">
+      <!-- ======================================================================= -->
+      <section id="exploration" data-stage="fig-case1">
 
-<h2>§3. Outside the salient region: exploration</h2>
+        <h2>§3. Outside the salient region: exploration</h2>
 
-<h3>3.1 How much a fixation is worth</h3>
+        <h3>3.1 How much a fixation is worth</h3>
 
-<p>Outside the salient region, a fixation counts as <strong>exploration</strong>. Two things decide how much it is worth.</p>
+        <p>Outside the salient region, a fixation counts as <strong>exploration</strong>. Two things decide how much it
+          is worth.</p>
 
-<ol>
-  <li><strong>Weight $1 - w(t)$.</strong> The further the fixation is from where people look, the more it is exploration and the less it is a near miss of a salient object.</li>
-  <li><strong>Amplitude $A(t)$.</strong> Staring at a blank wall, the sky or a black letterbox bar is not exploring, so the amplitude measures how much there is to see around the fixation. $A(t)$ can be any score in $[0, 1]$ that captures semantic or structural information in the patch, for example its edge density. Here we use the patch entropy: we take the $b \times b$ box around $g(t)$ ($b = 50$ px), convert it to grey levels, put the pixels into $32$ intensity bins with fractions $q_1, \dots, q_{32}$, and set
-    $$A(t) = H(t) = -\frac{1}{\log 32} \sum_{j=1}^{32} q_j \log q_j \;\in [0, 1].$$
-    A flat patch gives $H = 0$, and a richly textured patch gives $H$ close to $1$.</li>
-</ol>
+        <ol>
+          <li><strong>Weight $1 - w(t)$.</strong> The further the fixation is from where people look, the more it is
+            exploration and the less it is a near miss of a salient object.</li>
+          <li><strong>Amplitude $A(t)$.</strong> Staring at a blank wall, the sky or a black letterbox bar is not
+            exploring, so the amplitude measures how much there is to see around the fixation. $A(t)$ can be any score
+            in $[0, 1]$ that captures semantic or structural information in the patch, for example its edge density.
+            Here we use the patch entropy: we take the $b \times b$ box around $g(t)$ ($b = 50$ px), convert it to grey
+            levels, put the pixels into $32$ intensity bins with fractions $q_1, \dots, q_{32}$, and set
+            $$A(t) = H(t) = -\frac{1}{\log 32} \sum_{j=1}^{32} q_j \log q_j \;\in [0, 1].$$
+            A flat patch gives $H = 0$, and a richly textured patch gives $H$ close to $1$.</li>
+        </ol>
+
+        <p>Before any decay, the exploration score is</p>
+
+        <p>$$E(t) = \big(1 - w(t)\big)\, A(t) \qquad \text{for } w(t) &lt; \theta,$$</p>
+
+        <p>and $E(t) = 0$ inside the salient region.</p>
+
+        <h3>3.2 Case 1: staying outside too long (global decay)</h3>
+
+        <blockquote class="callout">
+          <p><em>If the predicted fixation stays outside the salient regions for too long, the metric should penalize it
+              gradually.</em></p>
+        </blockquote>
+
+        <p class="try-it"><strong>Try it:</strong> Figure 3.1 (<span data-wide="on the right"
+            data-narrow="below">below</span>) runs this case on a toy video. Press Play to watch the score of each
+          excursion fade, then drag $N_g$ or the number of frames outside to see how quickly a long excursion stops
+          paying.</p>
+
+        <p>We count how long the model has been outside. The <strong>run counter</strong> $n(t)$ is the number of
+          consecutive frames outside, including the current one:</p>
+
+        <p>$$
+          n(t) =
+          \begin{cases}
+          0 &amp; \text{if } w(t) \ge \theta \quad \text{(inside: no run)}\\[2pt]
+          1 &amp; \text{if } w(t) &lt; \theta \text{ and } \big(w(t-1) \ge \theta \text{ or } t \in \mathcal{C}\big)
+          \quad \text{(a run starts)}\\[2pt]
+          n(t-1) + 1 &amp; \text{otherwise} \quad \text{(the run continues)}
+          \end{cases}
+          $$</p>
+
+        <p>Every step outside multiplies the score by $p^{1/N_g}$:</p>
+
+        <p>$$E(t) = \big(1 - w(t)\big)\, A(t)\; p^{\,n(t)/N_g}.$$</p>
 
-<p>Before any decay, the exploration score is</p>
+        <ul>
+          <li><strong>Coming back resets it.</strong> As soon as the model returns to a salient region the run ends. Its
+            next excursion starts again from $n = 1$. Short excursions are cheap, and long ones fade away.</li>
+          <li><strong>A scene cut also resets it.</strong> A new shot is new content, so the counter starts over.</li>
+          <li><strong>Choosing $N_g$.</strong> $N_g$ is the average length of a run outside the salient regions for
+            <em>human</em> viewers. This is $6.29$ frames on DIEM and $3.07$ frames on Hollywood ($\sigma = 40$ px on
+            screen, $\theta = 0.3$). So after an excursion as long as a typical human's, the score has fallen to $p =
+            1\%$.
+          </li>
+        </ul>
 
-<p>$$E(t) = \big(1 - w(t)\big)\, A(t) \qquad \text{for } w(t) &lt; \theta,$$</p>
+        <figure class="widget tex2jax_ignore" id="fig-case1" data-widget="c1">
+          <div class="w-head"><span class="w-case">Case 1</span><span class="w-title">Staying outside too long · global
+              decay</span><span class="w-fignum">Fig. 3.1</span></div>
+          <figcaption><span class="fig-label">Figure 3.1:</span> <span data-caption>Case 1: the global exploration
+              decay.</span> These figures plot only the decay factor (weight × amplitude = 1).<span class="w-howto">
+              Press Play, or hover over the chart, to step through the frames; the small frame on the left shows where
+              the predicted fixation is.</span></figcaption>
+        </figure>
 
-<p>and $E(t) = 0$ inside the salient region.</p>
+        <h3 data-stage="fig-case11">3.3 Case 1.1: outside and not moving (local decay)</h3>
 
-<h3>3.2 Case 1: staying outside too long (global decay)</h3>
+        <blockquote class="callout">
+          <p><em>If the predicted fixation stays at the same position or very near it (it is basically not moving), it
+              should be penalized immediately.</em></p>
+        </blockquote>
 
-<blockquote class="callout">
-<p><em>If the predicted fixation stays outside the salient regions for too long, the metric should penalize it gradually.</em></p>
-</blockquote>
+        <p class="try-it"><strong>Try it:</strong> in Figure 3.2 (<span data-wide="on the right"
+            data-narrow="below">below</span>), choose where the model freezes, or click single cells of the step strip
+          to freeze them. The crimson segments are frozen (local) steps, and the dashed curve shows where the score
+          would be if the model had kept moving.</p>
+
+        <p>The global decay treats "wandering around outside" and "frozen at one spot outside" the same. But the frozen
+          model is not exploring at all, so every frozen step should cost <strong>more</strong>.</p>
+
+        <p><strong>A local step.</strong> Put the $b \times b$ box $B(t)$ around $g(t)$. Frame $t$ is a <em>local
+            step</em> if it continues a run and the box has barely moved since the previous frame:</p>
+
+        <p>$$\operatorname{IoU}\big(B(t), B(t-1)\big) &gt; 0.9 .$$</p>
+
+        <p>For two equal squares shifted by $(\Delta x, \Delta y)$, the IoU has a closed form:</p>
+
+        <p>$$\operatorname{IoU} = \frac{(b - |\Delta x|)(b - |\Delta y|)}{2b^2 - (b - |\Delta x|)(b - |\Delta y|)} .$$
+        </p>
+
+        <p>For a shift along one axis, $\operatorname{IoU} &gt; 0.9$ means a shift of less than $b/19$, about $2.6$ px
+          for $b = 50$. In other words, the model is not moving.</p>
+
+        <p>Every other step in the run, including the first one, is a <strong>global step</strong>. We split the run
+          counter into the two kinds:</p>
+
+        <p>$$
+          n(t) = \underbrace{k(t)}_{\text{global steps}} + \underbrace{\ell(t)}_{\text{local steps}},
+          \qquad
+          \ell(t) =
+          \begin{cases}
+          0 &amp; \text{if no run, or a run starts}\\
+          \ell(t-1) + 1 &amp; \text{if } t \text{ is a local step}\\
+          \ell(t-1) &amp; \text{otherwise.}
+          \end{cases}
+          $$</p>
+
+        <p>Each kind of step gets its own length scale, with $N_l &lt; N_g$:</p>
+
+        <p>$$E(t) = \big(1 - w(t)\big)\, A(t)\; p^{\,k(t)/N_g \;+\; \ell(t)/N_l}.$$</p>
+
+        <p>$N_l$ is measured in the same way as $N_g$. It is the average length of human stretches outside where
+          consecutive boxes overlap with IoU $&gt; 0.9$: $2.42$ frames on DIEM and $2.22$ on Hollywood.</p>
+
+        <p><strong>How much faster?</strong> On DIEM a global step multiplies the score by $0.01^{1/6.29} = 0.48$, while
+          a local step multiplies it by $0.01^{1/2.42} = 0.15$. One frozen frame costs as much as about $2.6$ moving
+          frames.</p>
+
+        <p>Freezing is <strong>not forgiven</strong> within the run. Once the model has frozen, the extra decay stays
+          until the run ends, either when the model returns to a salient region or at a cut.</p>
+
+        <figure class="widget tex2jax_ignore" id="fig-case11" data-widget="c2">
+          <div class="w-head"><span class="w-case">Case 1.1</span><span class="w-title">Outside and not moving · local
+              decay</span><span class="w-fignum">Fig. 3.2</span></div>
+          <figcaption><span class="fig-label">Figure 3.2:</span> <span data-caption>Case 1.1: the local exploration
+              decay for frozen frames.</span></figcaption>
+        </figure>
 
-<p class="try-it"><strong>Try it:</strong> Figure 3.1 (<span data-wide="on the right" data-narrow="below">below</span>) runs this case on a toy video. Press Play to watch the score of each excursion fade, then drag $N_g$ or the number of frames outside to see how quickly a long excursion stops paying.</p>
+      </section>
+
+      <hr class="section-divider">
 
-<p>We count how long the model has been outside. The <strong>run counter</strong> $n(t)$ is the number of consecutive frames outside, including the current one:</p>
+      <!-- ======================================================================= -->
+      <section id="tracking" data-stage="fig-case2">
+
+        <h2>§4. Inside the salient region: tracking</h2>
+
+        <p>The tracking term is built from the same pieces. It has its own counters and constants, and we reuse the
+          letters $n$, $\ell$, $N_g$, $N_l$, $p$ for them. When both terms appear together we tag them with $E$ and $T$.
+        </p>
+
+        <h3>4.1 How much a fixation is worth</h3>
+
+        <ul>
+          <li><strong>Weight $w(t)$.</strong> This is the mirror of the exploration weight $1 - w(t)$. The more salient
+            the fixation, the more it counts as tracking.</li>
+          <li><strong>Amplitude $A_T$.</strong> A constant, $A_T = 1$ for now.</li>
+        </ul>
 
-<p>$$
-n(t) =
-\begin{cases}
-0 &amp; \text{if } w(t) \ge \theta \quad \text{(inside: no run)}\\[2pt]
-1 &amp; \text{if } w(t) &lt; \theta \text{ and } \big(w(t-1) \ge \theta \text{ or } t \in \mathcal{C}\big) \quad \text{(a run starts)}\\[2pt]
-n(t-1) + 1 &amp; \text{otherwise} \quad \text{(the run continues)}
-\end{cases}
-$$</p>
+        <p>$$T(t) = w(t)\, A_T .$$</p>
+
+        <p>The tracking term needs no hard "inside" condition. Outside, $w(t) &lt; \theta$ is small, so $T(t)$ is small
+          automatically.</p>
+
+        <h3>4.2 Case 2: staying only in salient regions (global decay)</h3>
+
+        <blockquote class="callout">
+          <p><em>If the predicted fixation only stays in the salient region, this should also be penalized globally,
+              just like before.</em></p>
+        </blockquote>
+
+        <p class="try-it"><strong>Try it:</strong> in Figure 4.1 (<span data-wide="on the right"
+            data-narrow="below">below</span>), change how long the model stays on the salient region before it leaves.
+          Drag that slider to the end and the model never leaves, so its score just fades; otherwise the clock restarts
+          every time it comes back.</p>
+
+        <p>Even perfect tracking should not go on forever without a look elsewhere. The <strong>tracking clock</strong>
+          $n(t)$ counts frames since the model last <em>came back</em> to a salient region after being outside, or since
+          the last cut:</p>
+
+        <p>$$
+          n(t) =
+          \begin{cases}
+          1 &amp; \text{if } t \in \mathcal{C}, \text{ or } w(t) \ge \theta \text{ and } w(t-1) &lt; \theta \quad
+          \text{(cut, or came back)}\\[2pt]
+          n(t-1) + 1 &amp; \text{otherwise.}
+          \end{cases}
+          $$</p>
 
-<p>Every step outside multiplies the score by $p^{1/N_g}$:</p>
+        <p>$$T(t) = w(t)\, A_T\; p^{\,n(t)/N_g} .$$</p>
 
-<p>$$E(t) = \big(1 - w(t)\big)\, A(t)\; p^{\,n(t)/N_g}.$$</p>
+        <p>While the model is outside, the clock keeps running. It is not reset by leaving, only by
+          <strong>returning</strong>. So the tracking reward is restored only after a real excursion.
+        </p>
+
+        <p>Note the symmetry between the two terms:</p>
+
+        <ul>
+          <li>the <strong>exploration</strong> counter is reset by <em>entering</em> a salient region,</li>
+          <li>the <strong>tracking</strong> clock is reset by <em>coming back</em> to a salient region after leaving.
+          </li>
+        </ul>
 
-<ul>
-  <li><strong>Coming back resets it.</strong> As soon as the model returns to a salient region the run ends. Its next excursion starts again from $n = 1$. Short excursions are cheap, and long ones fade away.</li>
-  <li><strong>A scene cut also resets it.</strong> A new shot is new content, so the counter starts over.</li>
-  <li><strong>Choosing $N_g$.</strong> $N_g$ is the average length of a run outside the salient regions for <em>human</em> viewers. This is $6.29$ frames on DIEM and $3.07$ frames on Hollywood ($\sigma = 40$ px on screen, $\theta = 0.3$). So after an excursion as long as a typical human's, the score has fallen to $p = 1\%$.</li>
-</ul>
+        <p>Each term is reset by doing the other thing. A model gets high scores on both only if it keeps alternating
+          between the two.</p>
 
-<figure class="widget tex2jax_ignore" id="fig-case1" data-widget="c1">
-  <div class="w-head"><span class="w-case">Case 1</span><span class="w-title">Staying outside too long · global decay</span><span class="w-fignum">Fig. 3.1</span></div>
-  <figcaption><span class="fig-label">Figure 3.1:</span> <span data-caption>Case 1: the global exploration decay.</span> These figures plot only the decay factor (weight × amplitude = 1).<span class="w-howto"> Press Play, or hover over the chart, to step through the frames; the small frame on the left shows where the predicted fixation is.</span></figcaption>
-</figure>
+        <figure class="widget tex2jax_ignore" id="fig-case2" data-widget="c3">
+          <div class="w-head"><span class="w-case">Case 2</span><span class="w-title">Staying only in salient regions ·
+              global decay</span><span class="w-fignum">Fig. 4.1</span></div>
+          <figcaption><span class="fig-label">Figure 4.1:</span> <span data-caption>Case 2: the global tracking
+              decay.</span></figcaption>
+        </figure>
 
-<h3 data-stage="fig-case11">3.3 Case 1.1: outside and not moving (local decay)</h3>
+        <h3 data-stage="fig-case22">4.3 Case 2.2: several salient regions (local decay, reset on switch)</h3>
 
-<blockquote class="callout">
-<p><em>If the predicted fixation stays at the same position or very near it (it is basically not moving), it should be penalized immediately.</em></p>
-</blockquote>
-
-<p class="try-it"><strong>Try it:</strong> in Figure 3.2 (<span data-wide="on the right" data-narrow="below">below</span>), choose where the model freezes, or click single cells of the step strip to freeze them. The crimson segments are frozen (local) steps, and the dashed curve shows where the score would be if the model had kept moving.</p>
-
-<p>The global decay treats "wandering around outside" and "frozen at one spot outside" the same. But the frozen model is not exploring at all, so every frozen step should cost <strong>more</strong>.</p>
-
-<p><strong>A local step.</strong> Put the $b \times b$ box $B(t)$ around $g(t)$. Frame $t$ is a <em>local step</em> if it continues a run and the box has barely moved since the previous frame:</p>
-
-<p>$$\operatorname{IoU}\big(B(t), B(t-1)\big) &gt; 0.9 .$$</p>
-
-<p>For two equal squares shifted by $(\Delta x, \Delta y)$, the IoU has a closed form:</p>
-
-<p>$$\operatorname{IoU} = \frac{(b - |\Delta x|)(b - |\Delta y|)}{2b^2 - (b - |\Delta x|)(b - |\Delta y|)} .$$</p>
-
-<p>For a shift along one axis, $\operatorname{IoU} &gt; 0.9$ means a shift of less than $b/19$, about $2.6$ px for $b = 50$. In other words, the model is not moving.</p>
-
-<p>Every other step in the run, including the first one, is a <strong>global step</strong>. We split the run counter into the two kinds:</p>
-
-<p>$$
-n(t) = \underbrace{k(t)}_{\text{global steps}} + \underbrace{\ell(t)}_{\text{local steps}},
-\qquad
-\ell(t) =
-\begin{cases}
-0 &amp; \text{if no run, or a run starts}\\
-\ell(t-1) + 1 &amp; \text{if } t \text{ is a local step}\\
-\ell(t-1) &amp; \text{otherwise.}
-\end{cases}
-$$</p>
-
-<p>Each kind of step gets its own length scale, with $N_l &lt; N_g$:</p>
-
-<p>$$E(t) = \big(1 - w(t)\big)\, A(t)\; p^{\,k(t)/N_g \;+\; \ell(t)/N_l}.$$</p>
-
-<p>$N_l$ is measured in the same way as $N_g$. It is the average length of human stretches outside where consecutive boxes overlap with IoU $&gt; 0.9$: $2.42$ frames on DIEM and $2.22$ on Hollywood.</p>
-
-<p><strong>How much faster?</strong> On DIEM a global step multiplies the score by $0.01^{1/6.29} = 0.48$, while a local step multiplies it by $0.01^{1/2.42} = 0.15$. One frozen frame costs as much as about $2.6$ moving frames.</p>
-
-<p>Freezing is <strong>not forgiven</strong> within the run. Once the model has frozen, the extra decay stays until the run ends, either when the model returns to a salient region or at a cut.</p>
-
-<figure class="widget tex2jax_ignore" id="fig-case11" data-widget="c2">
-  <div class="w-head"><span class="w-case">Case 1.1</span><span class="w-title">Outside and not moving · local decay</span><span class="w-fignum">Fig. 3.2</span></div>
-  <figcaption><span class="fig-label">Figure 3.2:</span> <span data-caption>Case 1.1: the local exploration decay for frozen frames.</span></figcaption>
-</figure>
-
-</section>
-
-<hr class="section-divider">
-
-<!-- ======================================================================= -->
-<section id="tracking" data-stage="fig-case2">
-
-<h2>§4. Inside the salient region: tracking</h2>
-
-<p>The tracking term is built from the same pieces. It has its own counters and constants, and we reuse the letters $n$, $\ell$, $N_g$, $N_l$, $p$ for them. When both terms appear together we tag them with $E$ and $T$.</p>
-
-<h3>4.1 How much a fixation is worth</h3>
-
-<ul>
-  <li><strong>Weight $w(t)$.</strong> This is the mirror of the exploration weight $1 - w(t)$. The more salient the fixation, the more it counts as tracking.</li>
-  <li><strong>Amplitude $A_T$.</strong> A constant, $A_T = 1$ for now.</li>
-</ul>
-
-<p>$$T(t) = w(t)\, A_T .$$</p>
-
-<p>The tracking term needs no hard "inside" condition. Outside, $w(t) &lt; \theta$ is small, so $T(t)$ is small automatically.</p>
-
-<h3>4.2 Case 2: staying only in salient regions (global decay)</h3>
-
-<blockquote class="callout">
-<p><em>If the predicted fixation only stays in the salient region, this should also be penalized globally, just like before.</em></p>
-</blockquote>
-
-<p class="try-it"><strong>Try it:</strong> in Figure 4.1 (<span data-wide="on the right" data-narrow="below">below</span>), change how long the model stays on the salient region before it leaves. Drag that slider to the end and the model never leaves, so its score just fades; otherwise the clock restarts every time it comes back.</p>
-
-<p>Even perfect tracking should not go on forever without a look elsewhere. The <strong>tracking clock</strong> $n(t)$ counts frames since the model last <em>came back</em> to a salient region after being outside, or since the last cut:</p>
-
-<p>$$
-n(t) =
-\begin{cases}
-1 &amp; \text{if } t \in \mathcal{C}, \text{ or } w(t) \ge \theta \text{ and } w(t-1) &lt; \theta \quad \text{(cut, or came back)}\\[2pt]
-n(t-1) + 1 &amp; \text{otherwise.}
-\end{cases}
-$$</p>
-
-<p>$$T(t) = w(t)\, A_T\; p^{\,n(t)/N_g} .$$</p>
-
-<p>While the model is outside, the clock keeps running. It is not reset by leaving, only by <strong>returning</strong>. So the tracking reward is restored only after a real excursion.</p>
-
-<p>Note the symmetry between the two terms:</p>
-
-<ul>
-  <li>the <strong>exploration</strong> counter is reset by <em>entering</em> a salient region,</li>
-  <li>the <strong>tracking</strong> clock is reset by <em>coming back</em> to a salient region after leaving.</li>
-</ul>
-
-<p>Each term is reset by doing the other thing. A model gets high scores on both only if it keeps alternating between the two.</p>
-
-<figure class="widget tex2jax_ignore" id="fig-case2" data-widget="c3">
-  <div class="w-head"><span class="w-case">Case 2</span><span class="w-title">Staying only in salient regions · global decay</span><span class="w-fignum">Fig. 4.1</span></div>
-  <figcaption><span class="fig-label">Figure 4.1:</span> <span data-caption>Case 2: the global tracking decay.</span></figcaption>
-</figure>
-
-<h3 data-stage="fig-case22">4.3 Case 2.2: several salient regions (local decay, reset on switch)</h3>
-
-<blockquote class="callout">
-<p><em>If there are several salient regions, the model needs to move between them, and should be penalized if it stays on only one. So a local decay is introduced. This local decay resets to the level of the global decay, which is the only decay when there is a single salient region.</em></p>
-</blockquote>
-
-<p class="try-it"><strong>Try it:</strong> in Figure 4.2 (<span data-wide="on the right" data-narrow="below">below</span>), change the number of salient regions and how long the model stays on each. With one region the curve is the plain global decay; with two or more, every switch lifts it back up to the dashed envelope.</p>
-
-<p><strong>Salient regions as peaks.</strong> The salient regions of frame $t$ are the peaks of $S_t$. A peak is a local maximum within radius $r = 2\sigma$ with height at least $\eta = 0.3$. Call the set of peaks $\mathcal{P}_t$. Each fixation is assigned to its nearest peak:</p>
-
-<p>$$c(t) = \arg\min_{c \in \mathcal{P}_t} \big\lVert g(t) - c \big\rVert .$$</p>
-
-<p><strong>A switch.</strong> The model has moved to a different region if its assigned peak jumped by more than $r$:</p>
-
-<p>$$\text{switch at } t \iff \big\lVert c(t) - c(t-1) \big\rVert &gt; r .$$</p>
-
-<p><strong>Local steps since the last switch.</strong> If the frame has two or more peaks and the model is still on the same one, the frame is a local step:</p>
-
-<p>$$
-\ell(t) =
-\begin{cases}
-0 &amp; \text{if switch, cut, or came back}\\
-\ell(t-1) + 1 &amp; \text{if } |\mathcal{P}_t| \ge 2 \text{ and no switch}\\
-\ell(t-1) &amp; \text{if } |\mathcal{P}_t| = 1 .
-\end{cases}
-$$</p>
-
-<p>As in exploration, global steps use $N_g$ and local steps use the faster $N_l$. Here $n(t) - \ell(t)$ is the number of global steps:</p>
-
-<p>$$T(t) = w(t)\, A_T\; p^{\,(n(t) - \ell(t))/N_g \;+\; \ell(t)/N_l} .$$</p>
-
-<p>Here is what this does:</p>
-
-<ul>
-  <li><strong>Only one salient region.</strong> $\ell$ never grows, so this is exactly Case 2 (global decay only).</li>
-  <li><strong>Several regions, staying on one.</strong> Each frame adds the fast $1/N_l$ decay.</li>
-  <li><strong>A switch.</strong> $\ell$ drops to $0$ and the score jumps back up to the <strong>global envelope</strong>
-    $$w(t)\, A_T\; p^{\,n(t)/N_g},$$
-    not all the way back to $w(t)\, A_T$. Switching between objects is good, but it is still "staying inside", so only an excursion outside restarts the global clock.</li>
-</ul>
-
-<p>The result is a <strong>sawtooth under a slowly falling envelope</strong>.</p>
-
-<figure class="widget tex2jax_ignore" id="fig-case22" data-widget="c4">
-  <div class="w-head"><span class="w-case">Case 2.2</span><span class="w-title">Several salient regions · reset on switch</span><span class="w-fignum">Fig. 4.2</span></div>
-  <figcaption><span class="fig-label">Figure 4.2:</span> <span data-caption>Case 2.2: the local tracking decay, reset on a switch.</span></figcaption>
-</figure>
-
-</section>
-
-<hr class="section-divider">
-
-<!-- ======================================================================= -->
-<section id="final-metric" data-stage="fig-final">
-
-<h2>§5. The final metric</h2>
-
-<p>Tagging the two terms' own counters and constants with $E$ and $T$, the two scores of the predicted fixation at frame $t$ are</p>
-
-<p>$$
-\begin{aligned}
-E(t) &amp;= \mathbf{1}\big[w(t) &lt; \theta\big]\,\big(1 - w(t)\big)\, A_E(t)\;
-p_E^{\,k_E(t)/N^E_g \,+\, \ell_E(t)/N^E_l} &amp;&amp; \text{(exploration)}\\[6pt]
-T(t) &amp;= w(t)\, A_T\; p_T^{\,(n_T(t) - \ell_T(t))/N^T_g \,+\, \ell_T(t)/N^T_l} &amp;&amp; \text{(tracking)}
-\end{aligned}
-$$</p>
-
-<p>Over a video, we add up each term:</p>
-
-<p>$$E_{\text{tot}} = \sum_{t=1}^{\tau} E(t), \qquad T_{\text{tot}} = \sum_{t=1}^{\tau} T(t).$$</p>
-
-<p>A scanpath is good only when both totals are high, so the final metric is their geometric mean, not their sum:</p>
-
-<p>$$\boxed{\;M = \sqrt{E_{\text{tot}} \cdot T_{\text{tot}}}\;}$$</p>
-
-<p>If either total is close to zero, so is $M$. A model that tracks well but never leaves the salient regions has $E_{\text{tot}} = 0$, and therefore $M = 0$.</p>
-
-<p class="try-it"><strong>Try it:</strong> Figure 5.1 (<span data-wide="on the right" data-narrow="below">below</span>) runs both terms on five example scanpaths. Pick one to see $E(t)$ and $T(t)$ frame by frame, then compare the totals: only the scanpath that both explores and tracks gets a high $M$.</p>
-
-<figure class="widget tex2jax_ignore" id="fig-final" data-widget="c5">
-  <div class="w-head"><span class="w-case">Final</span><span class="w-title">Whole scanpaths · <i>M</i> = √(<i>E</i><sub>tot</sub> · <i>T</i><sub>tot</sub>)</span><span class="w-fignum">Fig. 5.1</span></div>
-  <figcaption><span class="fig-label">Figure 5.1:</span> <span data-caption>Both terms on one scanpath, combined with the geometric mean.</span> The saliency map and texture are synthetic, so <i>w</i>(<i>t</i>) and <i>A</i>(<i>t</i>) are example values. Exploration uses the DIEM length scales (6.29, 2.42), tracking the placeholders (30, 10); <i>p</i><sub>E</sub> = <i>p</i><sub>T</sub> = 0.01, <i>A</i><sub>T</sub> = 1, θ = 0.3.</figcaption>
-</figure>
-
-<p>Both terms have the same form, $\text{weight} \times \text{amplitude} \times p^{\,(\text{global steps})/N_g + (\text{local steps})/N_l}$. They differ only in three ways:</p>
-
-<table class="data-table">
-<thead>
-<tr><th></th><th>Exploration $E$</th><th>Tracking $T$</th></tr>
-</thead>
-<tbody>
-<tr><td>global step</td><td>a frame outside</td><td>a frame on salient content</td></tr>
-<tr><td>local step</td><td>box barely moved (IoU $&gt; 0.9$)</td><td>still on the same peak while $\ge 2$ peaks exist</td></tr>
-<tr><td>local steps cleared by</td><td>end of the run only</td><td>switching to another peak</td></tr>
-<tr><td>clock restarts on</td><td>entering a salient region, cut</td><td>coming back from outside, cut</td></tr>
-</tbody>
-</table>
-
-<h3>Summary: what each behaviour does to the score</h3>
-
-<table class="data-table">
-<thead>
-<tr><th>behaviour</th><th>effect</th></tr>
-</thead>
-<tbody>
-<tr><td>wanders around outside</td><td>global exploration decay, $\times\, p_E^{1/N^E_g}$ per frame</td></tr>
-<tr><td>frozen at one spot outside</td><td>faster local decay, $\times\, p_E^{1/N^E_l}$ per frame, never forgiven in the run</td></tr>
-<tr><td>enters a salient region</td><td>exploration run ends, so the next excursion starts again from $n = 1$</td></tr>
-<tr><td>stays on the only salient region</td><td>global tracking decay</td></tr>
-<tr><td>stays on one region while others exist</td><td>fast local tracking decay</td></tr>
-<tr><td>switches to another region</td><td>tracking score back up to the global envelope</td></tr>
-<tr><td>leaves and comes back</td><td>tracking clock restarts</td></tr>
-<tr><td>scene cut</td><td>everything restarts</td></tr>
-</tbody>
-</table>
-
-<h3>Parameters</h3>
-
-<table class="data-table">
-<thead>
-<tr><th>symbol</th><th>meaning</th><th>value</th></tr>
-</thead>
-<tbody>
-<tr><td>$\sigma$</td><td>Gaussian width of the saliency map</td><td>40 px (on screen)</td></tr>
-<tr><td>$\theta$</td><td>inside/outside threshold on $w$</td><td>0.3</td></tr>
-<tr><td>$b$</td><td>box side for IoU and the amplitude patch</td><td>50 px (on screen)</td></tr>
-<tr><td>IoU threshold</td><td>"not moving"</td><td>0.9</td></tr>
-<tr><td>$p_E,\ p_T$</td><td>value of the decay after $N$ steps</td><td>0.01</td></tr>
-<tr><td>$N^E_g$</td><td>mean human run length outside</td><td>6.29 (DIEM), 3.07 (Hollywood)</td></tr>
-<tr><td>$N^E_l$</td><td>mean human frozen-run length outside</td><td>2.42 (DIEM), 2.22 (Hollywood)</td></tr>
-<tr><td>$r$, $\eta$</td><td>peak radius and minimum peak height</td><td>$2\sigma$, 0.3</td></tr>
-<tr><td>$A_E(t)$</td><td>exploration amplitude</td><td>patch entropy $H(t)$</td></tr>
-<tr><td>$A_T$</td><td>tracking amplitude</td><td>1</td></tr>
-<tr><td>$N^T_g,\ N^T_l$</td><td>tracking length scales</td><td>30, 10 (placeholders, to be calibrated)</td></tr>
-</tbody>
-</table>
-
-</section>
-
-<!-- References: uncomment, fill in, and add <li><a href="#references">References</a></li>
+        <blockquote class="callout">
+          <p><em>If there are several salient regions, the model needs to move between them, and should be penalized if
+              it stays on only one. So a local decay is introduced. This local decay resets to the level of the global
+              decay, which is the only decay when there is a single salient region.</em></p>
+        </blockquote>
+
+        <p class="try-it"><strong>Try it:</strong> in Figure 4.2 (<span data-wide="on the right"
+            data-narrow="below">below</span>), change the number of salient regions and how long the model stays on
+          each. With one region the curve is the plain global decay; with two or more, every switch lifts it back up to
+          the dashed envelope.</p>
+
+        <p><strong>Salient regions as peaks.</strong> The salient regions of frame $t$ are the peaks of $S_t$. A peak is
+          a local maximum within radius $r = 2\sigma$ with height at least $\eta = 0.3$. Call the set of peaks
+          $\mathcal{P}_t$. Each fixation is assigned to its nearest peak:</p>
+
+        <p>$$c(t) = \arg\min_{c \in \mathcal{P}_t} \big\lVert g(t) - c \big\rVert .$$</p>
+
+        <p><strong>A switch.</strong> The model has moved to a different region if its assigned peak jumped by more than
+          $r$:</p>
+
+        <p>$$\text{switch at } t \iff \big\lVert c(t) - c(t-1) \big\rVert &gt; r .$$</p>
+
+        <p><strong>Local steps since the last switch.</strong> If the frame has two or more peaks and the model is still
+          on the same one, the frame is a local step:</p>
+
+        <p>$$
+          \ell(t) =
+          \begin{cases}
+          0 &amp; \text{if switch, cut, or came back}\\
+          \ell(t-1) + 1 &amp; \text{if } |\mathcal{P}_t| \ge 2 \text{ and no switch}\\
+          \ell(t-1) &amp; \text{if } |\mathcal{P}_t| = 1 .
+          \end{cases}
+          $$</p>
+
+        <p>As in exploration, global steps use $N_g$ and local steps use the faster $N_l$. Here $n(t) - \ell(t)$ is the
+          number of global steps:</p>
+
+        <p>$$T(t) = w(t)\, A_T\; p^{\,(n(t) - \ell(t))/N_g \;+\; \ell(t)/N_l} .$$</p>
+
+        <p>Here is what this does:</p>
+
+        <ul>
+          <li><strong>Only one salient region.</strong> $\ell$ never grows, so this is exactly Case 2 (global decay
+            only).</li>
+          <li><strong>Several regions, staying on one.</strong> Each frame adds the fast $1/N_l$ decay.</li>
+          <li><strong>A switch.</strong> $\ell$ drops to $0$ and the score jumps back up to the <strong>global
+              envelope</strong>
+            $$w(t)\, A_T\; p^{\,n(t)/N_g},$$
+            not all the way back to $w(t)\, A_T$. Switching between objects is good, but it is still "staying inside",
+            so only an excursion outside restarts the global clock.</li>
+        </ul>
+
+        <p>The result is a <strong>sawtooth under a slowly falling envelope</strong>.</p>
+
+        <figure class="widget tex2jax_ignore" id="fig-case22" data-widget="c4">
+          <div class="w-head"><span class="w-case">Case 2.2</span><span class="w-title">Several salient regions · reset
+              on switch</span><span class="w-fignum">Fig. 4.2</span></div>
+          <figcaption><span class="fig-label">Figure 4.2:</span> <span data-caption>Case 2.2: the local tracking decay,
+              reset on a switch.</span></figcaption>
+        </figure>
+
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- ======================================================================= -->
+      <section id="final-metric" data-stage="fig-final">
+
+        <h2>§5. The final metric</h2>
+
+        <p>Tagging the two terms' own counters and constants with $E$ and $T$, the two scores of the predicted fixation
+          at frame $t$ are</p>
+
+        <p>$$
+          \begin{aligned}
+          E(t) &amp;= \mathbf{1}\big[w(t) &lt; \theta\big]\,\big(1 - w(t)\big)\, A_E(t)\;
+          p_E^{\,k_E(t)/N^E_g \,+\, \ell_E(t)/N^E_l} &amp;&amp; \text{(exploration)}\\[6pt]
+          T(t) &amp;= w(t)\, A_T\; p_T^{\,(n_T(t) - \ell_T(t))/N^T_g \,+\, \ell_T(t)/N^T_l} &amp;&amp; \text{(tracking)}
+          \end{aligned}
+          $$</p>
+
+        <p>Over a video, we add up each term:</p>
+
+        <p>$$E_{\text{tot}} = \sum_{t=1}^{\tau} E(t), \qquad T_{\text{tot}} = \sum_{t=1}^{\tau} T(t).$$</p>
+
+        <p>A scanpath is good only when both totals are high, so the final metric is their geometric mean:</p>
+
+        <p>$$\boxed{\;M = \sqrt{E_{\text{tot}} \cdot T_{\text{tot}}}\;}$$</p>
+
+        <p>If either total is close to zero, so is $M$. A model that tracks well but never leaves the salient regions
+          has $E_{\text{tot}} = 0$, and therefore $M = 0$.</p>
+
+        <p class="try-it"><strong>Try it:</strong> Figure 5.1 (<span data-wide="on the right"
+            data-narrow="below">below</span>) runs both terms on five example scanpaths. Pick one to see $E(t)$ and
+          $T(t)$ frame by frame, then compare the totals: only the scanpath that both explores and tracks gets a high
+          $M$.</p>
+
+        <figure class="widget tex2jax_ignore" id="fig-final" data-widget="c5">
+          <div class="w-head"><span class="w-case">Final</span><span class="w-title">Whole scanpaths · <i>M</i> =
+              √(<i>E</i><sub>tot</sub> · <i>T</i><sub>tot</sub>)</span><span class="w-fignum">Fig. 5.1</span></div>
+          <figcaption><span class="fig-label">Figure 5.1:</span> <span data-caption>Both terms on one scanpath, combined
+              with the geometric mean.</span> The saliency map and texture are synthetic, so <i>w</i>(<i>t</i>) and
+            <i>A</i>(<i>t</i>) are example values. Exploration uses the DIEM length scales (6.29, 2.42), tracking the
+            placeholders (30, 10); <i>p</i><sub>E</sub> = <i>p</i><sub>T</sub> = 0.01, <i>A</i><sub>T</sub> = 1, θ =
+            0.3.
+          </figcaption>
+        </figure>
+
+        <p>Both terms have the same form, $\text{weight} \times \text{amplitude} \times p^{\,(\text{global steps})/N_g +
+          (\text{local steps})/N_l}$. They differ only in three ways:</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Exploration $E$</th>
+              <th>Tracking $T$</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>global step</td>
+              <td>a frame outside</td>
+              <td>a frame on salient content</td>
+            </tr>
+            <tr>
+              <td>local step</td>
+              <td>box barely moved (IoU $&gt; 0.9$)</td>
+              <td>still on the same peak while $\ge 2$ peaks exist</td>
+            </tr>
+            <tr>
+              <td>local steps cleared by</td>
+              <td>end of the run only</td>
+              <td>switching to another peak</td>
+            </tr>
+            <tr>
+              <td>clock restarts on</td>
+              <td>entering a salient region, cut</td>
+              <td>coming back from outside, cut</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Summary: what each behaviour does to the score</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>behaviour</th>
+              <th>effect</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>wanders around outside</td>
+              <td>global exploration decay, $\times\, p_E^{1/N^E_g}$ per frame</td>
+            </tr>
+            <tr>
+              <td>frozen at one spot outside</td>
+              <td>faster local decay, $\times\, p_E^{1/N^E_l}$ per frame, never forgiven in the run</td>
+            </tr>
+            <tr>
+              <td>enters a salient region</td>
+              <td>exploration run ends, so the next excursion starts again from $n = 1$</td>
+            </tr>
+            <tr>
+              <td>stays on the only salient region</td>
+              <td>global tracking decay</td>
+            </tr>
+            <tr>
+              <td>stays on one region while others exist</td>
+              <td>fast local tracking decay</td>
+            </tr>
+            <tr>
+              <td>switches to another region</td>
+              <td>tracking score back up to the global envelope</td>
+            </tr>
+            <tr>
+              <td>leaves and comes back</td>
+              <td>tracking clock restarts</td>
+            </tr>
+            <tr>
+              <td>scene cut</td>
+              <td>everything restarts</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Parameters</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>symbol</th>
+              <th>meaning</th>
+              <th>value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>$\sigma$</td>
+              <td>Gaussian width of the saliency map</td>
+              <td>40 px (on screen)</td>
+            </tr>
+            <tr>
+              <td>$\theta$</td>
+              <td>inside/outside threshold on $w$</td>
+              <td>0.3</td>
+            </tr>
+            <tr>
+              <td>$b$</td>
+              <td>box side for IoU and the amplitude patch</td>
+              <td>50 px (on screen)</td>
+            </tr>
+            <tr>
+              <td>IoU threshold</td>
+              <td>"not moving"</td>
+              <td>0.9</td>
+            </tr>
+            <tr>
+              <td>$p_E,\ p_T$</td>
+              <td>value of the decay after $N$ steps</td>
+              <td>0.01</td>
+            </tr>
+            <tr>
+              <td>$N^E_g$</td>
+              <td>mean human run length outside</td>
+              <td>6.29 (DIEM), 3.07 (Hollywood)</td>
+            </tr>
+            <tr>
+              <td>$N^E_l$</td>
+              <td>mean human frozen-run length outside</td>
+              <td>2.42 (DIEM), 2.22 (Hollywood)</td>
+            </tr>
+            <tr>
+              <td>$r$, $\eta$</td>
+              <td>peak radius and minimum peak height</td>
+              <td>$2\sigma$, 0.3</td>
+            </tr>
+            <tr>
+              <td>$A_E(t)$</td>
+              <td>exploration amplitude</td>
+              <td>patch entropy $H(t)$</td>
+            </tr>
+            <tr>
+              <td>$A_T$</td>
+              <td>tracking amplitude</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <td>$N^T_g,\ N^T_l$</td>
+              <td>tracking length scales</td>
+              <td>30, 10 (placeholders, to be calibrated)</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </section>
+
+      <!-- References: uncomment, fill in, and add <li><a href="#references">References</a></li>
      to the TOC above (e.g. the DIEM and Hollywood datasets).
 <hr class="section-divider">
 
@@ -518,51 +720,56 @@ $$</p>
 </section>
 -->
 
-<hr class="section-divider">
+      <hr class="section-divider">
 
-<!-- ======================================================================= -->
-<section id="citation">
+      <!-- ======================================================================= -->
+      <section id="citation">
 
-<h2>Citation</h2>
+        <h2>Citation</h2>
 
-<p>If you found this post useful and would like to cite it:</p>
+        <p>If you found this post useful and would like to cite it:</p>
 
-<p><strong>Plain text:</strong></p>
+        <p><strong>Plain text:</strong></p>
 
-<div class="citation-box">
-  <button class="copy-btn" data-copy-target="#citation-plain" aria-label="Copy plain-text citation" title="Copy">
-    <svg class="icon-copy" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <rect x="5" y="5" width="9" height="9" rx="1.5"/>
-      <path d="M2.5 11V3.5A1.5 1.5 0 0 1 4 2H11"/>
-    </svg>
-  </button>
-  <p id="citation-plain">Kotyada, Venkata Narendra. &ldquo;Don't Get Stuck: A Metric for Scanpath Prediction.&rdquo; 2026. https://kvn-257.github.io/blog/my-metric/</p>
-</div>
+        <div class="citation-box">
+          <button class="copy-btn" data-copy-target="#citation-plain" aria-label="Copy plain-text citation"
+            title="Copy">
+            <svg class="icon-copy" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="5" y="5" width="9" height="9" rx="1.5" />
+              <path d="M2.5 11V3.5A1.5 1.5 0 0 1 4 2H11" />
+            </svg>
+          </button>
+          <p id="citation-plain">Kotyada, Venkata Narendra. &ldquo;Don't Get Stuck: A Metric for Scanpath
+            Prediction.&rdquo; 2026. https://kvn-257.github.io/blog/my-metric/</p>
+        </div>
 
-<p><strong>BibTeX:</strong></p>
+        <p><strong>BibTeX:</strong></p>
 
-<div class="citation-box bibtex">
-  <button class="copy-btn" data-copy-target="#citation-bibtex" aria-label="Copy BibTeX citation" title="Copy">
-    <svg class="icon-copy" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <rect x="5" y="5" width="9" height="9" rx="1.5"/>
-      <path d="M2.5 11V3.5A1.5 1.5 0 0 1 4 2H11"/>
-    </svg>
-  </button>
-  <pre><code id="citation-bibtex">@misc{kotyada2026dontgetstuck,
+        <div class="citation-box bibtex">
+          <button class="copy-btn" data-copy-target="#citation-bibtex" aria-label="Copy BibTeX citation" title="Copy">
+            <svg class="icon-copy" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="5" y="5" width="9" height="9" rx="1.5" />
+              <path d="M2.5 11V3.5A1.5 1.5 0 0 1 4 2H11" />
+            </svg>
+          </button>
+          <pre><code id="citation-bibtex">@misc{kotyada2026dontgetstuck,
   author = {Kotyada, Venkata Narendra},
   title  = {{Don't Get Stuck: A Metric for Scanpath Prediction}},
   year   = {2026},
   url    = {https://kvn-257.github.io/blog/my-metric/},
   note   = {Blog post}
 }</code></pre>
-</div>
+        </div>
 
-</section>
+      </section>
 
-</div><!-- /.post-main -->
-</article>
+    </div><!-- /.post-main -->
+  </article>
 
-<script src="../assets/blog.js"></script>
-<script defer src="widgets.js"></script>
+  <script src="../assets/blog.js"></script>
+  <script defer src="widgets.js"></script>
 </body>
+
 </html>
