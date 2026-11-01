@@ -207,7 +207,7 @@ c3: {
     return chips + `<div class="ro-eq">${eq}</div>`;
   },
   factors: P => `each frame: × ${fmt(Math.pow(P.p, 1 / P.Ng))}`,
-  caption: P => P.leave >= 90 ? `The model never leaves, so the decay never resets and the score fades towards zero. After N<sub>g</sub> = ${P.Ng} frames it is down to p.` : `Leaving does not reset the tracking counter; it keeps counting while the model is away. Coming back resets it to n = 1, so the tracking reward is restored only after a real excursion.`,
+  caption: P => P.leave >= 90 ? `The model never leaves, so the decay never resets and the score fades towards zero. After N<sub>g</sub> = ${P.Ng} frames it is down to p.` : `Leaving does not reset the tracking counter; it keeps counting while the model is away. Coming back resets it to n = 1, so the tracking score is restored only after a real excursion.`,
   cols: ["frame", "zone", "n", "D_T"], row: f => [f.i + 1, f.zone === "in" ? "inside" : "away", f.n, fmt(f.D)]
 },
 c4: {

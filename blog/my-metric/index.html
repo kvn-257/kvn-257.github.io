@@ -235,7 +235,7 @@
           <li><strong>Weight $1 - w(t)$.</strong> The further the fixation is from where people look, the more it is
             exploration and the less it is a near miss of a salient object.</li>
           <li><strong>Amplitude $A(t)$.</strong> The amplitude measures how much there is to see around the fixation,
-            so fixations on empty regions such as a blank wall, the sky earn little credit. $A(t)$ can be any score
+            so fixations on empty regions such as a blank wall, the sky earn a low score. $A(t)$ can be any score
             in $[0, 1]$ that captures semantic or structural information in the patch, for example its edge density.
             Here we use the patch entropy: we take the $b \times b$ box around $g(t)$ ($b = 50$ px), convert it to grey
             levels, put the pixels into $32$ intensity bins with fractions $q_1, \dots, q_{32}$, and set
@@ -243,7 +243,7 @@
             A flat patch gives $H = 0$, and a richly textured patch gives $H$ close to $1$.</li>
         </ol>
 
-        <p>Before any decay, the exploration score is</p>
+        <p>Before any decay, the exploration term is</p>
 
         <p>$$E(t) = \big(1 - w(t)\big)\, A(t) \qquad \text{for } w(t) &lt; \eta,$$</p>
 
@@ -479,7 +479,7 @@
         <p>$$T(t) = w(t)\, A(t)\; p^{\,n(t)/N_g} .$$</p>
 
         <p>Unlike the exploration counter, the tracking counter keeps counting while the model is outside. It is not reset by leaving, only by
-          <strong>returning</strong>. So the tracking reward is restored only after a real excursion.
+          <strong>returning</strong>. So the tracking score is restored only after a real excursion.
         </p>
 
         <p>Note the symmetry between the two terms:</p>
@@ -500,7 +500,7 @@
               decay.</span></figcaption>
         </figure>
 
-        <h3 data-stage="fig-case22">4.3 Case 2.2: several salient regions (local decay, reset on switch)</h3>
+        <h3 data-stage="fig-case22">4.3 Case 2.1: several salient regions (local decay, reset on switch)</h3>
 
         <blockquote class="callout">
           <p><em>If there are several salient regions, the model needs to move between them, and should be penalized if
@@ -557,9 +557,9 @@
         <p>The result is a <strong>sawtooth under a slowly falling envelope</strong>.</p>
 
         <figure class="widget tex2jax_ignore" id="fig-case22" data-widget="c4">
-          <div class="w-head"><span class="w-case">Case 2.2</span><span class="w-title">Several salient regions · reset
+          <div class="w-head"><span class="w-case">Case 2.1</span><span class="w-title">Several salient regions · reset
               on switch</span><span class="w-fignum">Fig. 4.2</span></div>
-          <figcaption><span class="fig-label">Figure 4.2:</span> <span data-caption>Case 2.2: the local tracking decay,
+          <figcaption><span class="fig-label">Figure 4.2:</span> <span data-caption>Case 2.1: the local tracking decay,
               reset on a switch.</span></figcaption>
         </figure>
 
@@ -611,7 +611,8 @@
         </figure>
 
         <p>Both terms have the same form, $\text{weight} \times \text{amplitude} \times p^{\,(\text{global steps})/N_g +
-          (\text{local steps})/N_l}$. They differ only in three ways:</p>
+          (\text{local steps})/N_l}$. Apart from the weight ($1 - w(t)$ for exploration, $w(t)$ for tracking) and
+          their own constants, they differ in four ways:</p>
 
         <table class="data-table">
           <thead>
@@ -624,8 +625,8 @@
           <tbody>
             <tr>
               <td>global step</td>
-              <td>a frame outside</td>
-              <td>a frame on salient content</td>
+              <td>box moved (IoU $\le 0.9$)</td>
+              <td>a switch, or any frame while only one peak exists</td>
             </tr>
             <tr>
               <td>local step</td>
