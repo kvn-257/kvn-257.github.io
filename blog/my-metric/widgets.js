@@ -25,18 +25,19 @@ const ICON_PAUSE = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 1.
 /* ---------------- simulations (follow the equations exactly) ---------------- */
 const BLOB_E = [44, 45];
 function exploreFrames(zones, frozen, P) {
-  const fr = []; let k = 0, l = 0, pos = BLOB_E;
+  // n counts every frame of the run; ℓ counts the frozen frames in a row and is reset when the model moves again
+  const fr = []; let n = 0, l = 0, pos = BLOB_E;
   zones.forEach((z, i) => {
-    const f = { i, zone: z, step: null, D: null, env: null, n: 0, k: 0, l: 0, cont: false, event: null };
-    if (z === "in") { k = 0; l = 0; f.pos = jit(BLOB_E, i, 5); }
+    const f = { i, zone: z, step: null, D: null, env: null, n: 0, l: 0, cont: false, event: null };
+    if (z === "in") { n = 0; l = 0; f.pos = jit(BLOB_E, i, 5); }
     else {
       const start = i === 0 || zones[i - 1] === "in";
-      if (start) { k = 1; l = 0; f.step = "G"; f.event = "start"; }
-      else if (frozen.has(i)) { l++; f.step = "L"; }
-      else { k++; f.step = "G"; }
-      f.k = k; f.l = l; f.n = k + l; f.cont = !start;
-      f.D = Math.pow(P.p, k / P.Ng + l / P.Nl);
-      f.env = Math.pow(P.p, (k + l) / P.Ng);
+      if (start) { n = 1; l = 0; f.step = "G"; f.event = "start"; }
+      else if (frozen.has(i)) { n++; l++; f.step = "L"; }
+      else { n++; if (l > 0) f.event = "resume"; l = 0; f.step = "G"; }
+      f.n = n; f.l = l; f.cont = !start;
+      f.D = Math.pow(P.p, (n - l) / P.Ng + l / P.Nl);
+      f.env = Math.pow(P.p, n / P.Ng);
       if (f.step === "L") f.pos = [pos[0] + (hash(i, 7) - .5) * .6, pos[1] + (hash(i, 8) - .5) * .6];
       else {
         let q = [94 + hash(i, 3) * 54, 14 + hash(i, 4) * 62];
@@ -141,7 +142,9 @@ c1: {
 c2: {
   label: "Exploration decay with frozen frames over two excursions",
   defaults: { Ng: 6.29, Nl: 2.42, p: 0.01, x: 10 }, t0: 5,
-  init: () => ({ f1: new Set([2, 3]), f2: new Set(), pattern: "early" }),
+  // taller chart, y axis cut just above the highest score: the jump back up to the envelope is small in absolute terms
+  extraH: 40, fitY: true,
+  init: () => ({ f1: new Set([1, 2]), f2: new Set(), pattern: "early" }),
   controls: [
     { type: "preset", id: "ds", label: "Calibration", options: [{ name: "DIEM", values: { Ng: 6.29, Nl: 2.42 } }, { name: "Hollywood", values: { Ng: 3.07, Nl: 2.22 } }] },
     { type: "range", id: "x", label: "Frames outside", min: 4, max: 16, step: 1, show: v => v + " frames" },
@@ -150,7 +153,7 @@ c2: {
     pCtl,
     { type: "pattern", id: "pat", label: "Freezes in the 1st excursion", options: [
       { name: "Never", key: "never", make: x => [] },
-      { name: "Early", key: "early", make: x => [2, 3] },
+      { name: "Early", key: "early", make: x => [1, 2] },
       { name: "Late", key: "late", make: x => [x - 3, x - 2, x - 1] },
       { name: "All", key: "all", make: x => Array.from({ length: x - 1 }, (_, j) => j + 1) }] }
   ],
@@ -169,20 +172,21 @@ c2: {
   },
   canClick: f => f.zone === "out" && f.off > 0,
   click(card, i) { const f = card.frames[i]; const set = f.run === 1 ? card.state.f1 : card.state.f2; if (set.has(f.off)) set.delete(f.off); else set.add(f.off); card.state.pattern = null; },
-  legend: () => item(sw("sw-line global"), "global (moving)") + item(sw("sw-line local"), "local (frozen)") + item(sw("sw-dash"), "if it kept moving") + item(sw("sw-band salient"), "salient region"),
+  legend: () => item(sw("sw-line global"), "global (moving)") + item(sw("sw-line local"), "local (frozen)") + item(sw("sw-evt"), "moves again, ℓ reset") + item(sw("sw-dash"), "global envelope (if it kept moving)") + item(sw("sw-band salient"), "salient region"),
   band: f => f.zone === "in" ? "band-salient" : null,
-  strip: f => f.zone === "in" ? "c-salient" : f.step === "L" ? "c-local" : "c-global", stripLabel: "step", points: true, envLine: true,
+  strip: f => f.zone === "in" ? "c-salient" : f.step === "L" ? "c-local" : "c-global", stripLabel: "step", points: true, envLine: true, evt: f => f.event === "resume",
   scene: c => scene(c, [BLOB_E], { r: 20, box: 14 }),
   readout(c, f) {
     const P = c.params;
-    const chips = `<div class="chips"><span>frame <b>${f.i + 1}</b></span><span>${f.zone === "in" ? "inside" : f.step === "L" ? "outside · local step (box barely moved)" : "outside · global step"}</span><span><b>n = ${f.n}</b>, <b>ℓ = ${f.l}</b></span></div>`;
-    if (f.zone === "in") return chips + `<div class="ro-eq"><span class="txt">Inside the salient region: no exploration score. The counters n and ℓ are reset, so frozen frames from the last run no longer count.</span></div>`;
+    const what = f.step === "L" ? "outside · local step (box barely moved)" : f.event === "resume" ? "outside · moved again, ℓ reset to 0" : "outside · global step";
+    const chips = `<div class="chips"><span>frame <b>${f.i + 1}</b></span><span>${f.zone === "in" ? "inside" : what}</span><span><b>n = ${f.n}</b>, <b>ℓ = ${f.l}</b></span></div>`;
+    if (f.zone === "in") return chips + `<div class="ro-eq"><span class="txt">Inside the salient region: no exploration score, and the counters n and ℓ are reset.</span></div>`;
     return chips + `<div class="ro-eq">${tex(`D_E(t)=p^{\\,(n-\\ell)/N_g+\\ell/N_l}=${P.p}^{\\,(${f.n}-${f.l})/${num(P.Ng)}+${f.l}/${num(P.Nl)}}=${fmt(f.D)}`)}</div>` +
-      `<div class="ro-eq">${tex(`\\text{if it had kept moving: }p^{\\,n/N_g}=${fmt(f.env)}`)}</div>`;
+      `<div class="ro-eq">${tex(`\\text{global envelope: }p^{\\,n/N_g}=${fmt(f.env)}`)}</div>`;
   },
   factors: P => `global step: × ${fmt(Math.pow(P.p, 1 / P.Ng))}<br>local step: × ${fmt(Math.pow(P.p, 1 / P.Nl))}`,
-  caption: P => `A frozen frame multiplies the score by p<sup>1/N<sub>l</sub></sup> = ${fmt(Math.pow(P.p, 1 / P.Nl))} instead of p<sup>1/N<sub>g</sub></sup> = ${fmt(Math.pow(P.p, 1 / P.Ng))}, so one frozen frame costs as much as ${num(P.Ng / P.Nl)} moving frames. The extra decay stays for the rest of the run. Only going back inside resets the counters, so the second excursion starts again from n = 1, ℓ = 0.`,
-  cols: ["frame", "zone", "step", "n", "ℓ", "D_E", "kept moving"],
+  caption: P => `A frozen frame multiplies the score by p<sup>1/N<sub>l</sub></sup> = ${fmt(Math.pow(P.p, 1 / P.Nl))} instead of p<sup>1/N<sub>g</sub></sup> = ${fmt(Math.pow(P.p, 1 / P.Ng))}, so one frozen frame costs as much as ${num(P.Ng / P.Nl)} moving frames. As soon as the model moves again, ℓ is reset to 0 and the score jumps back up to the dashed global envelope: a freeze is penalized while it lasts, not afterwards.`,
+  cols: ["frame", "zone", "step", "n", "ℓ", "D_E", "envelope"],
   row: f => [f.i + 1, f.zone === "in" ? "inside" : "outside", f.step === "L" ? "local" : f.step === "G" ? "global" : "—", f.zone === "in" ? "—" : f.n, f.zone === "in" ? "—" : f.l, fmt(f.D), fmt(f.env)]
 },
 c3: {
@@ -367,10 +371,16 @@ function refresh(card) {
 function draw(card) {
   const { spec, frames } = card, box = card.el.chart;
   const compact = card.root.classList.contains("on-stage");      // in the sticky side column
-  const W = Math.max(280, Math.floor(box.clientWidth || 600)), H = compact ? 200 : W < 520 ? 250 : 280;
+  const W = Math.max(280, Math.floor(box.clientWidth || 600)), H = (compact ? 200 : W < 520 ? 250 : 280) + (spec.extraH || 0);
   const M = { l: 46, r: 14, t: 24, b: 58 }, pw = W - M.l - M.r, ph = H - M.t - M.b, T = frames.length, cw = pw / T;
   const X = i => M.l + (i + .5) * cw;
-  const Y = v => card.log ? M.t + ph * (Math.log10(Math.max(v, LO)) / Math.log10(LO)) : M.t + ph * (1 - v);
+  // linear axis normally runs 0..1; with fitY it stops at the first of 0.25 / 0.5 / 0.75 / 1 above the highest value
+  let top = 1;
+  if (spec.fitY && !card.log) {
+    const mx = Math.max(...frames.map(f => Math.max(f.D || 0, f.env || 0)));
+    top = [0.25, 0.5, 0.75, 1].find(v => v >= mx) || 1;
+  }
+  const Y = v => card.log ? M.t + ph * (Math.log10(Math.max(v, LO)) / Math.log10(LO)) : M.t + ph * (1 - v / top);
   let s = "";
   // shaded zones
   for (let i = 0; i < T;) {
@@ -379,7 +389,8 @@ function draw(card) {
     s += `<rect class="${b}" x="${(M.l + i * cw).toFixed(1)}" y="${M.t}" width="${((j - i + 1) * cw).toFixed(1)}" height="${ph}"/>`; i = j + 1;
   }
   // grid + y axis
-  const yt = card.log ? [1, 0.1, 0.01, 0.001, 1e-4] : [0, 0.25, 0.5, 0.75, 1];
+  const yt = card.log ? [1, 0.1, 0.01, 0.001, 1e-4]
+    : { 0.25: [0, 0.05, 0.1, 0.15, 0.2, 0.25], 0.5: [0, 0.1, 0.2, 0.3, 0.4, 0.5], 0.75: [0, 0.25, 0.5, 0.75] }[top] || [0, 0.25, 0.5, 0.75, 1];
   yt.forEach(v => {
     const y = Y(v).toFixed(1);
     s += `<line class="${v === 0 || v === 1e-4 ? "base" : "grid"}" x1="${M.l}" x2="${M.l + pw}" y1="${y}" y2="${y}"/>`;
@@ -477,17 +488,17 @@ function finalFrames(segs) {
       kind.push(k);
     }
   }
-  const P = FP, fr = []; let k = 0, l = 0, n = 0, lt = 0, prevC = null, wasAway = false, sumE = 0, sumT = 0;
+  const P = FP, fr = []; let ne = 0, l = 0, n = 0, lt = 0, prevC = null, wasAway = false, sumE = 0, sumT = 0;
   pos.forEach((g, i) => {
     const w = Sal(g[0], g[1]), H = Ent(g[0], g[1]), low = w < P.eta, plow = i > 0 && fr[i - 1].zone === "out";
-    // exploration: counters live inside each run of frames with w < η
+    // exploration: counters live inside each run of frames with w < η; ℓ is reset when the model moves again
     let E = 0, step = null;
-    if (!low) { k = 0; l = 0; }
+    if (!low) { ne = 0; l = 0; }
     else {
-      if (!plow) { k = 1; l = 0; step = "G"; }
-      else if (iou(g, pos[i - 1]) > 0.9) { l++; step = "L"; }
-      else { k++; step = "G"; }
-      E = (1 - w) * H * Math.pow(P.pE, k / P.NgE + l / P.NlE);
+      if (!plow) { ne = 1; l = 0; step = "G"; }
+      else if (iou(g, pos[i - 1]) > 0.9) { ne++; l++; step = "L"; }
+      else { ne++; l = 0; step = "G"; }
+      E = (1 - w) * H * Math.pow(P.pE, (ne - l) / P.NgE + l / P.NlE);
     }
     // tracking: counter n is reset on coming back; ℓ counts same-peak steps since the last switch
     const c = Math.hypot(g[0] - PK[0][0], g[1] - PK[0][1]) <= Math.hypot(g[0] - PK[1][0], g[1] - PK[1][1]) ? 0 : 1;
@@ -499,7 +510,7 @@ function finalFrames(segs) {
     if (!moved && prevC !== null) lt++;            // two peaks in every frame
     const Tt = w * H * Math.pow(P.pT, (n - lt) / P.NgT + lt / P.NlT);
     prevC = c; wasAway = low; sumE += E; sumT += Tt;
-    fr.push({ i, pos: g, w, H, zone: low ? "out" : "in", step, k: low ? k : 0, l: low ? l : 0, n, lt, region: c, event, E, T: Tt, sumE, sumT, kind: kind[i] });
+    fr.push({ i, pos: g, w, H, zone: low ? "out" : "in", step, ne: low ? ne : 0, l: low ? l : 0, n, lt, region: c, event, E, T: Tt, sumE, sumT, kind: kind[i] });
   });
   return fr;
 }
@@ -590,7 +601,7 @@ function readFinal(f) {
   const ev = f.event === "switch" ? " · switched" : f.event === "back" ? " · came back" : "";
   let s = `<div class="chips"><span>frame <b>${f.i + 1}</b></span><span>${where}${ev}</span><span><b>w = ${f.w.toFixed(2)}</b></span><span><b>A = ${f.H.toFixed(2)}</b></span></div>`;
   const eE = f.zone === "out"
-    ? tex(`E(t)=(1-w)\\,A\\,p_E^{\\,(n-\\ell)/N^E_g+\\ell/N^E_l}=${(1 - f.w).toFixed(2)}\\cdot${f.H.toFixed(2)}\\cdot ${P.pE}^{\\,(${f.k + f.l}-${f.l})/${P.NgE}+${f.l}/${P.NlE}}=${fmt(f.E)}`)
+    ? tex(`E(t)=(1-w)\\,A\\,p_E^{\\,(n-\\ell)/N^E_g+\\ell/N^E_l}=${(1 - f.w).toFixed(2)}\\cdot${f.H.toFixed(2)}\\cdot ${P.pE}^{\\,(${f.ne}-${f.l})/${P.NgE}+${f.l}/${P.NlE}}=${fmt(f.E)}`)
     : tex(`E(t)=0`) + ` <span class="txt">(inside a salient region)</span>`;
   const eT = tex(`T(t)=w\\,A\\,p_T^{\\,(n-\\ell)/N^T_g+\\ell/N^T_l}=${f.w.toFixed(2)}\\cdot ${f.H.toFixed(2)}\\cdot ${P.pT}^{\\,(${f.n}-${f.lt})/${P.NgT}+${f.lt}/${P.NlT}}=${fmt(f.T)}`);
   const run = Math.sqrt(f.sumE * f.sumT);

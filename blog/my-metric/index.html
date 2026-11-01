@@ -41,7 +41,7 @@
     content="A scanpath model looks at a video and predicts, frame by frame, where a person would look. How do we score such a prediction?">
   <meta property="og:url" content="https://kvn-257.github.io/blog/my-metric/">
   <meta property="og:site_name" content="Venkata Narendra Kotyada">
-  <meta property="article:published_time" content="2026-10-31">
+  <meta property="article:published_time" content="2026-11-01">
   <meta property="article:author" content="Venkata Narendra Kotyada">
   <!-- Uncomment once you have a preview image at ./images/preview.png
 <meta property="og:image" content="https://kvn-257.github.io/blog/my-metric/images/preview.png">
@@ -122,7 +122,7 @@
     <div class="post-main">
 
       <header class="post-header">
-        <p class="eyebrow">Evaluation metrics · Scanpath prediction · <time datetime="2026-10-31">October 31,
+        <p class="eyebrow">Evaluation metrics · Scanpath prediction · <time datetime="2026-11-01">November 1,
             2026</time></p>
         <h1>Don't Get Stuck: A Metric for Scanpath Prediction</h1>
 
@@ -307,8 +307,8 @@
 
         <p class="try-it"><strong>Try it:</strong> in Figure 3.2 (<span data-wide="on the right"
             data-narrow="below">below</span>), choose where the model freezes, or click single cells of the step strip
-          to freeze them. The crimson segments are frozen (local) steps, and the dashed curve shows where the score
-          would be if the model had kept moving.</p>
+          to freeze them. The crimson segments are frozen (local) steps. The dashed curve is where the score would be if
+          the model had kept moving, and the score jumps back up to it as soon as the model moves again.</p>
 
         <p>The global decay treats "wandering around outside" and "frozen at one spot outside" the same. But the frozen
           model is not exploring at all, so every frozen step should cost <strong>more</strong>.</p>
@@ -390,20 +390,20 @@
 
         <p>That is less than about $2.6$ px for $b = 50$. In other words, the model is not moving.</p>
 
-        <p>Every other step in the run, including the first one, is a <strong>global step</strong>. The <strong>local counter</strong>
-          $\ell(t)$ counts the local steps in the current run:</p>
+        <p>Every other step in the run, including the first one, is a <strong>global step</strong>. The <strong>local
+            counter</strong> $\ell(t)$ counts how many local steps in a row the model has made, that is, how long it has
+          been frozen:</p>
 
         <p>$$
           \ell(t) =
           \begin{cases}
-          0 &amp; \text{if no run, or a run starts}\\
           \ell(t-1) + 1 &amp; \text{if } t \text{ is a local step}\\
-          \ell(t-1) &amp; \text{otherwise,}
+          0 &amp; \text{otherwise (no run, a run starts, or the model moves again).}
           \end{cases}
           $$</p>
 
-        <p>so the run's $n(t)$ steps split into $n(t) - \ell(t)$ global steps and $\ell(t)$ local steps. Each kind of
-          step gets its own length scale, with $N_l &lt; N_g$:</p>
+        <p>The $\ell(t)$ frames of the current freeze use the faster length scale $N_l &lt; N_g$, and the other $n(t) -
+          \ell(t)$ frames of the run keep $N_g$:</p>
 
         <p>$$E(t) = \big(1 - w(t)\big)\, A(t)\; p^{\,(n(t) - \ell(t))/N_g \;+\; \ell(t)/N_l}.$$</p>
 
@@ -414,8 +414,12 @@
           a local step multiplies it by $0.01^{1/2.42} = 0.15$. One frozen frame costs as much as about $2.6$ moving
           frames.</p>
 
-        <p>Freezing is <strong>not forgiven</strong> within the run. Once the model has frozen, the extra decay stays
-          until the local counter is reset, either when the model returns to a salient region or at a cut.</p>
+        <p><strong>Moving again resets the local counter.</strong> The frozen frames were already penalized while they
+          lasted, so once the model starts exploring again they should not keep costing it. As soon as the box moves,
+          $\ell$ is reset to $0$ and the score jumps back up to the <strong>global envelope</strong>
+          $$\big(1 - w(t)\big)\, A(t)\; p^{\,n(t)/N_g},$$
+          the score it would have if it had kept moving all along. The frozen frames still count in $n(t)$, so the score
+          does not jump back to the start of the run.</p>
 
         <figure class="widget tex2jax_ignore" id="fig-case11" data-widget="c2">
           <div class="w-head"><span class="w-case">Case 1.1</span><span class="w-title">Outside and not moving · local
@@ -536,8 +540,8 @@
           \end{cases}
           $$</p>
 
-        <p>As in exploration, the $n(t) - \ell(t)$ global steps use $N_g$ and the $\ell(t)$ local steps use the faster
-          $N_l$:</p>
+        <p>As in exploration, the $\ell(t)$ local steps since the last switch use the faster $N_l$, and the other $n(t) -
+          \ell(t)$ frames keep $N_g$:</p>
 
         <p>$$T(t) = w(t)\, A(t)\; p^{\,(n(t) - \ell(t))/N_g \;+\; \ell(t)/N_l} .$$</p>
 
@@ -547,8 +551,8 @@
           <li><strong>Only one salient region.</strong> $\ell$ never grows, so this is exactly Case 2 (global decay
             only).</li>
           <li><strong>Several regions, staying on one.</strong> Each frame adds the fast $1/N_l$ decay.</li>
-          <li><strong>A switch.</strong> $\ell$ is reset to $0$ and the score jumps back up to the <strong>global
-              envelope</strong>
+          <li><strong>A switch.</strong> Just like moving again in exploration, $\ell$ is reset to $0$ and the score
+            jumps back up to the global envelope
             $$w(t)\, A(t)\; p^{\,n(t)/N_g},$$
             not all the way back to $w(t)\, A(t)$. Switching between objects is good, but it is still "staying inside",
             so only an excursion outside resets the tracking counter.</li>
@@ -635,7 +639,7 @@
             </tr>
             <tr>
               <td>local counter $\ell$ reset by</td>
-              <td>end of the run only</td>
+              <td>moving again</td>
               <td>switching to another peak</td>
             </tr>
             <tr>
@@ -662,7 +666,11 @@
             </tr>
             <tr>
               <td>frozen at one spot outside</td>
-              <td>faster local decay, $\times\, p_E^{1/N^E_l}$ per frame, never forgiven in the run</td>
+              <td>faster local decay, $\times\, p_E^{1/N^E_l}$ per frame, while it stays frozen</td>
+            </tr>
+            <tr>
+              <td>starts moving again outside</td>
+              <td>exploration score back up to the global envelope</td>
             </tr>
             <tr>
               <td>enters a salient region</td>
