@@ -234,8 +234,8 @@
         <ol>
           <li><strong>Weight $1 - w(t)$.</strong> The further the fixation is from where people look, the more it is
             exploration and the less it is a near miss of a salient object.</li>
-          <li><strong>Amplitude $A(t)$.</strong> Staring at a blank wall, the sky or a black letterbox bar is not
-            exploring, so the amplitude measures how much there is to see around the fixation. $A(t)$ can be any score
+          <li><strong>Amplitude $A(t)$.</strong> The amplitude measures how much there is to see around the fixation,
+            so fixations on empty regions such as a blank wall, the sky earn little credit. $A(t)$ can be any score
             in $[0, 1]$ that captures semantic or structural information in the patch, for example its edge density.
             Here we use the patch entropy: we take the $b \times b$ box around $g(t)$ ($b = 50$ px), convert it to grey
             levels, put the pixels into $32$ intensity bins with fractions $q_1, \dots, q_{32}$, and set
@@ -326,50 +326,57 @@
         <details class="proof">
           <summary><span class="when-closed">Show the proof</span><span class="when-open">Hide the proof</span>
           </summary>
-          <div class="proof-body"><div class="proof-inner">
-          <p><strong>Proof.</strong> Put $B(t-1)$ at $[0, b] \times [0, b]$, so that $B(t) = [\Delta x,\, \Delta x + b]
-            \times [\Delta y,\, \Delta y + b]$. If $|\Delta x| \ge b$ or $|\Delta y| \ge b$, the boxes do not overlap
-            and the IoU is $0$, so assume both shifts are smaller than $b$.</p>
+          <div class="proof-body">
+            <div class="proof-inner">
+              <p><strong>Proof.</strong> Put $B(t-1)$ at $[0, b] \times [0, b]$, so that $B(t) = [\Delta x,\, \Delta x +
+                b]
+                \times [\Delta y,\, \Delta y + b]$. If $|\Delta x| \ge b$ or $|\Delta y| \ge b$, the boxes do not
+                overlap
+                and the IoU is $0$, so assume both shifts are smaller than $b$.</p>
 
-          <div class="proof-diagram">
-            <svg viewBox="0 0 290 222" role="img"
-              aria-label="Two b by b boxes. B(t) is B(t-1) shifted right by |Δx| and up by |Δy|. Their overlap is a rectangle of width b minus |Δx| and height b minus |Δy|.">
-              <rect class="ov" x="80" y="60" width="80" height="90" />
-              <rect class="bx old" x="40" y="60" width="120" height="120" />
-              <rect class="bx now" x="80" y="30" width="120" height="120" />
-              <text x="46" y="173">B(t − 1)</text>
-              <text x="194" y="47" text-anchor="end">B(t)</text>
-              <text class="big" x="120" y="110" text-anchor="middle">I</text>
-              <path class="dim" d="M40 198H160M40 192v12M80 192v12M160 192v12" />
-              <text x="60" y="216" text-anchor="middle">|Δx|</text>
-              <text x="120" y="216" text-anchor="middle">b − |Δx|</text>
-              <path class="dim" d="M218 30V150M212 30h12M212 60h12M212 150h12" />
-              <text x="228" y="49">|Δy|</text>
-              <text x="228" y="109">b − |Δy|</text>
-            </svg>
+              <div class="proof-diagram">
+                <svg viewBox="0 0 290 222" role="img"
+                  aria-label="Two b by b boxes. B(t) is B(t-1) shifted right by |Δx| and up by |Δy|. Their overlap is a rectangle of width b minus |Δx| and height b minus |Δy|.">
+                  <rect class="ov" x="80" y="60" width="80" height="90" />
+                  <rect class="bx old" x="40" y="60" width="120" height="120" />
+                  <rect class="bx now" x="80" y="30" width="120" height="120" />
+                  <text x="46" y="173">B(t − 1)</text>
+                  <text x="194" y="47" text-anchor="end">B(t)</text>
+                  <text class="big" x="120" y="110" text-anchor="middle">I</text>
+                  <path class="dim" d="M40 198H160M40 192v12M80 192v12M160 192v12" />
+                  <text x="60" y="216" text-anchor="middle">|Δx|</text>
+                  <text x="120" y="216" text-anchor="middle">b − |Δx|</text>
+                  <path class="dim" d="M218 30V150M212 30h12M212 60h12M212 150h12" />
+                  <text x="228" y="49">|Δy|</text>
+                  <text x="228" y="109">b − |Δy|</text>
+                </svg>
+              </div>
+
+              <p><em>Intersection.</em> Two axis-aligned rectangles meet in a rectangle, and each side of it is the
+                overlap
+                of the matching sides. Along $x$,
+                $$[0, b] \cap [\Delta x,\, \Delta x + b] = \big[\max(0, \Delta x),\; \min(b,\, b + \Delta x)\big],$$
+                which has length $b - \Delta x$ if $\Delta x \ge 0$ and $b + \Delta x$ if $\Delta x &lt; 0$, so $b -
+                |\Delta x|$ in both cases. The same holds along $y$, so the intersection has area
+                $$I = \big|B(t) \cap B(t-1)\big| = (b - |\Delta x|)(b - |\Delta y|).$$</p>
+
+              <p><em>Union.</em> Adding the two areas counts the intersection twice, so we subtract it once
+                (inclusion–exclusion):
+                $$
+                \begin{aligned}
+                \big|B(t) \cup B(t-1)\big| &amp;= \big|B(t)\big| + \big|B(t-1)\big| - \big|B(t) \cap B(t-1)\big|\\
+                &amp;= b^2 + b^2 - I \;=\; 2b^2 - I.
+                \end{aligned}
+                $$</p>
+
+              <p><em>Ratio.</em> Dividing the two,
+                $$\operatorname{IoU} = \frac{\big|B(t) \cap B(t-1)\big|}{\big|B(t) \cup B(t-1)\big|} = \frac{I}{2b^2 -
+                I}
+                = \frac{(b - |\Delta x|)(b - |\Delta y|)}{2b^2 - (b - |\Delta x|)(b - |\Delta y|)} .$$
+                <span class="qed" aria-label="End of proof">∎</span>
+              </p>
+            </div>
           </div>
-
-          <p><em>Intersection.</em> Two axis-aligned rectangles meet in a rectangle, and each side of it is the overlap
-            of the matching sides. Along $x$,
-            $$[0, b] \cap [\Delta x,\, \Delta x + b] = \big[\max(0, \Delta x),\; \min(b,\, b + \Delta x)\big],$$
-            which has length $b - \Delta x$ if $\Delta x \ge 0$ and $b + \Delta x$ if $\Delta x &lt; 0$, so $b -
-            |\Delta x|$ in both cases. The same holds along $y$, so the intersection has area
-            $$I = \big|B(t) \cap B(t-1)\big| = (b - |\Delta x|)(b - |\Delta y|).$$</p>
-
-          <p><em>Union.</em> Adding the two areas counts the intersection twice, so we subtract it once
-            (inclusion–exclusion):
-            $$
-            \begin{aligned}
-            \big|B(t) \cup B(t-1)\big| &amp;= \big|B(t)\big| + \big|B(t-1)\big| - \big|B(t) \cap B(t-1)\big|\\
-            &amp;= b^2 + b^2 - I \;=\; 2b^2 - I.
-            \end{aligned}
-            $$</p>
-
-          <p><em>Ratio.</em> Dividing the two,
-            $$\operatorname{IoU} = \frac{\big|B(t) \cap B(t-1)\big|}{\big|B(t) \cup B(t-1)\big|} = \frac{I}{2b^2 - I}
-            = \frac{(b - |\Delta x|)(b - |\Delta y|)}{2b^2 - (b - |\Delta x|)(b - |\Delta y|)} .$$
-            <span class="qed" aria-label="End of proof">∎</span></p>
-          </div></div>
         </details>
 
         <p>For a shift of $d$ along one axis only ($|\Delta x| = d$, $\Delta y = 0$), the formula simplifies to</p>
@@ -572,7 +579,8 @@
           \begin{aligned}
           E(t) &amp;= \mathbf{1}\big[w(t) &lt; \theta\big]\,\big(1 - w(t)\big)\, A(t)\;
           p_E^{\,(n_E(t) - \ell_E(t))/N^E_g \,+\, \ell_E(t)/N^E_l} &amp;&amp; \text{(exploration)}\\[6pt]
-          T(t) &amp;= w(t)\, A(t)\; p_T^{\,(n_T(t) - \ell_T(t))/N^T_g \,+\, \ell_T(t)/N^T_l} &amp;&amp; \text{(tracking)}
+          T(t) &amp;= w(t)\, A(t)\; p_T^{\,(n_T(t) - \ell_T(t))/N^T_g \,+\, \ell_T(t)/N^T_l} &amp;&amp;
+          \text{(tracking)}
           \end{aligned}
           $$</p>
 
