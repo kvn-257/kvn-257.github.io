@@ -378,6 +378,62 @@ table.data-table.mono tbody td:nth-child(2) {
 }
 .callout p:last-child { margin-bottom: 0; }
 
+/* Proof of a formula, folded under it:
+   <details class="proof"><summary>…</summary><div class="proof-body"><div class="proof-inner">…</div></div></details>
+   blog.js slides it open and shut. */
+.proof { margin: 0.4rem 0 1.6rem; }
+.proof > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.35rem 0.85rem 0.35rem 0.75rem;
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  font-size: 0.95rem;
+  color: var(--muted);
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.proof > summary::-webkit-details-marker { display: none; }
+.proof > summary::before {
+  content: "";
+  border-left: 5px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: transform 0.2s;
+}
+.proof[open]:not(.closing) > summary::before { transform: rotate(90deg); }
+.proof > summary:hover { color: var(--t); border-color: rgba(0, 0, 0, 0.28); }
+.proof > summary:focus-visible { outline: 2px solid var(--highlight); outline-offset: 2px; }
+.proof .when-open,
+.proof[open]:not(.closing) .when-closed { display: none; }
+.proof[open]:not(.closing) .when-open { display: inline; }
+.proof-inner {
+  margin-top: 0.9rem;
+  padding: 0.1rem 0 0.1rem 1.25rem;
+  border-left: 2px solid var(--rule);
+}
+.proof-inner > p:last-child { margin-bottom: 0; }
+.proof .qed { display: block; text-align: right; color: var(--muted); line-height: 1; }
+.proof-diagram { margin: 0.4rem 0 1.2rem; text-align: center; }
+.proof-diagram svg { width: 100%; max-width: 300px; height: auto; overflow: visible; }
+.proof-diagram .ov { fill: var(--highlight); fill-opacity: 0.13; }
+.proof-diagram .bx { fill: none; stroke-width: 1.5; }
+.proof-diagram .bx.old { stroke: var(--muted); stroke-dasharray: 5 4; }
+.proof-diagram .bx.now { stroke: var(--highlight); }
+.proof-diagram .dim { fill: none; stroke: var(--third); stroke-width: 1; }
+.proof-diagram text {
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  font-size: 13px;
+  font-style: italic;
+  fill: var(--muted);
+}
+.proof-diagram text.big { font-family: "Iowan Old Style", "Source Serif 4", Georgia, serif; font-size: 17px; fill: var(--t); }
+
 /* "Try it" pointer from the text to an interactive figure */
 .try-it {
   font-family: "Source Sans 3", system-ui, sans-serif;

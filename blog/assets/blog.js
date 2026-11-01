@@ -90,6 +90,49 @@
   });
 })();
 
+// ---------- Folded proofs ----------
+// <details class="proof"> slides open and shut instead of jumping. Without JS, or with
+// reduced motion, it is a plain <details>.
+(function () {
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+  document.querySelectorAll('details.proof').forEach(d => {
+    const summary = d.querySelector(':scope > summary');
+    const body = d.querySelector(':scope > .proof-body');
+    if (!summary || !body || !body.animate) return;
+    let anim = null;
+
+    summary.addEventListener('click', e => {
+      if (calm.matches) return;
+      e.preventDefault();
+      const closing = d.open && !d.classList.contains('closing');
+      // Current height, even mid-animation. A closed <details> still reports its hidden
+      // content's height, so count that as 0.
+      const from = d.open ? body.getBoundingClientRect().height : 0;
+      if (anim) anim.cancel();
+      if (closing) {
+        d.classList.add('closing');
+      } else {
+        d.classList.remove('closing');
+        d.open = true;
+      }
+      const to = closing ? 0 : body.scrollHeight;
+      const ms = Math.min(560, Math.max(260, Math.abs(to - from) * 0.4));
+      body.style.overflow = 'hidden';
+      const a = anim = body.animate(
+        [{ height: from + 'px', opacity: closing ? 1 : 0.2 }, { height: to + 'px', opacity: closing ? 0 : 1 }],
+        { duration: ms, easing: 'cubic-bezier(.2,.7,.2,1)' }
+      );
+      a.finished.then(() => {
+        if (anim !== a) return;
+        anim = null;
+        body.style.overflow = '';
+        if (closing) { d.open = false; d.classList.remove('closing'); }
+        window.dispatchEvent(new Event('resize'));   // let the progress bar and figure column catch up
+      }).catch(() => {});   // cancelled by a second click: the new animation takes over
+    });
+  });
+})();
+
 // ---------- Side figures ("stage") ----------
 // Opt-in with <article class="with-stage">. Each element with data-stage="<figure id>"
 // marks where that figure's part of the text begins. On wide screens the figures move

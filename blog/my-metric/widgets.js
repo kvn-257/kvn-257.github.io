@@ -175,15 +175,15 @@ c2: {
   scene: c => scene(c, [BLOB_E], { r: 20, box: 14 }),
   readout(c, f) {
     const P = c.params;
-    const chips = `<div class="chips"><span>frame <b>${f.i + 1}</b></span><span>${f.zone === "in" ? "inside" : f.step === "L" ? "outside · local step (box barely moved)" : "outside · global step"}</span><span><b>k = ${f.k}</b>, <b>ℓ = ${f.l}</b></span></div>`;
-    if (f.zone === "in") return chips + `<div class="ro-eq"><span class="txt">Inside the salient region: no exploration score. The counters k and ℓ are reset, so frozen frames from the last run no longer count.</span></div>`;
-    return chips + `<div class="ro-eq">${tex(`D_E(t)=p^{\\,k/N_g+\\ell/N_l}=${P.p}^{\\,${f.k}/${num(P.Ng)}+${f.l}/${num(P.Nl)}}=${fmt(f.D)}`)}</div>` +
-      `<div class="ro-eq">${tex(`\\text{if it had kept moving: }p^{\\,(k+\\ell)/N_g}=${fmt(f.env)}`)}</div>`;
+    const chips = `<div class="chips"><span>frame <b>${f.i + 1}</b></span><span>${f.zone === "in" ? "inside" : f.step === "L" ? "outside · local step (box barely moved)" : "outside · global step"}</span><span><b>n = ${f.n}</b>, <b>ℓ = ${f.l}</b></span></div>`;
+    if (f.zone === "in") return chips + `<div class="ro-eq"><span class="txt">Inside the salient region: no exploration score. The counters n and ℓ are reset, so frozen frames from the last run no longer count.</span></div>`;
+    return chips + `<div class="ro-eq">${tex(`D_E(t)=p^{\\,(n-\\ell)/N_g+\\ell/N_l}=${P.p}^{\\,(${f.n}-${f.l})/${num(P.Ng)}+${f.l}/${num(P.Nl)}}=${fmt(f.D)}`)}</div>` +
+      `<div class="ro-eq">${tex(`\\text{if it had kept moving: }p^{\\,n/N_g}=${fmt(f.env)}`)}</div>`;
   },
   factors: P => `global step: × ${fmt(Math.pow(P.p, 1 / P.Ng))}<br>local step: × ${fmt(Math.pow(P.p, 1 / P.Nl))}`,
   caption: P => `A frozen frame multiplies the score by p<sup>1/N<sub>l</sub></sup> = ${fmt(Math.pow(P.p, 1 / P.Nl))} instead of p<sup>1/N<sub>g</sub></sup> = ${fmt(Math.pow(P.p, 1 / P.Ng))}, so one frozen frame costs as much as ${num(P.Ng / P.Nl)} moving frames. The extra decay stays for the rest of the run. Only going back inside clears it, which is why the second excursion starts over.`,
-  cols: ["frame", "zone", "step", "k", "ℓ", "D_E", "kept moving"],
-  row: f => [f.i + 1, f.zone === "in" ? "inside" : "outside", f.step === "L" ? "local" : f.step === "G" ? "global" : "—", f.zone === "in" ? "—" : f.k, f.zone === "in" ? "—" : f.l, fmt(f.D), fmt(f.env)]
+  cols: ["frame", "zone", "step", "n", "ℓ", "D_E", "kept moving"],
+  row: f => [f.i + 1, f.zone === "in" ? "inside" : "outside", f.step === "L" ? "local" : f.step === "G" ? "global" : "—", f.zone === "in" ? "—" : f.n, f.zone === "in" ? "—" : f.l, fmt(f.D), fmt(f.env)]
 },
 c3: {
   label: "Tracking decay over 90 frames",
@@ -203,7 +203,7 @@ c3: {
     const P = c.params;
     const chips = `<div class="chips"><span>frame <b>${f.i + 1}</b></span><span>${f.zone === "in" ? "on the salient region" : "away (outside)"}${f.event === "restart" ? " · came back" : ""}</span><span>clock <b>n = ${f.n}</b></span></div>`;
     let eq = tex(`D_T(t)=p_T^{\\,n/N_g}=${P.p}^{\\,${f.n}/${P.Ng}}=${fmt(f.D)}`);
-    if (f.zone === "out") eq += `<div class="txt">The clock keeps running while away. The score is still w(t)·A<sub>T</sub>·D<sub>T</sub>(t), but w(t) &lt; θ makes it small.</div>`;
+    if (f.zone === "out") eq += `<div class="txt">The clock keeps running while away. The score is still w(t)·A(t)·D<sub>T</sub>(t), but w(t) &lt; θ makes it small.</div>`;
     return chips + `<div class="ro-eq">${eq}</div>`;
   },
   factors: P => `each frame: × ${fmt(Math.pow(P.p, 1 / P.Ng))}`,
@@ -441,7 +441,7 @@ function table(card) {
 }
 
 /* ---------------- final score: both terms on one scanpath ---------------- */
-const FP = { pE: 0.01, NgE: 6.29, NlE: 2.42, pT: 0.01, NgT: 30, NlT: 10, AT: 1, theta: 0.3 };
+const FP = { pE: 0.01, NgE: 6.29, NlE: 2.42, pT: 0.01, NgT: 30, NlT: 10, theta: 0.3 };
 const PK = [[46, 43], [114, 43]], SIG = 10, BOX = 14, NF = 120;
 const Sal = (x, y) => Math.max(...PK.map(c => Math.exp(-((x - c[0]) ** 2 + (y - c[1]) ** 2) / (2 * SIG * SIG))));
 const Ent = (x, y) => 0.64 + 0.14 * Math.sin(x / 7.3) * Math.cos(y / 5.1);
@@ -497,7 +497,7 @@ function finalFrames(segs) {
     if (moved) { lt = 0; event = "switch"; }
     n++;
     if (!moved && prevC !== null) lt++;            // two peaks in every frame
-    const Tt = w * P.AT * Math.pow(P.pT, (n - lt) / P.NgT + lt / P.NlT);
+    const Tt = w * H * Math.pow(P.pT, (n - lt) / P.NgT + lt / P.NlT);
     prevC = c; wasAway = low; sumE += E; sumT += Tt;
     fr.push({ i, pos: g, w, H, zone: low ? "out" : "in", step, k: low ? k : 0, l: low ? l : 0, n, lt, region: c, event, E, T: Tt, sumE, sumT, kind: kind[i] });
   });
@@ -588,11 +588,11 @@ function readFinal(f) {
   const P = FP;
   const where = f.zone === "in" ? `on <b>${"AB"[f.region]}</b>` : f.step === "L" ? "outside · frozen (local step)" : "outside · moving (global step)";
   const ev = f.event === "switch" ? " · switched" : f.event === "back" ? " · came back" : "";
-  let s = `<div class="chips"><span>frame <b>${f.i + 1}</b></span><span>${where}${ev}</span><span><b>w = ${f.w.toFixed(2)}</b></span>${f.zone === "out" ? `<span><b>A<sub>E</sub> = ${f.H.toFixed(2)}</b></span>` : ""}</div>`;
+  let s = `<div class="chips"><span>frame <b>${f.i + 1}</b></span><span>${where}${ev}</span><span><b>w = ${f.w.toFixed(2)}</b></span><span><b>A = ${f.H.toFixed(2)}</b></span></div>`;
   const eE = f.zone === "out"
-    ? tex(`E(t)=(1-w)\\,A_E\\,p_E^{\\,k/N^E_g+\\ell/N^E_l}=${(1 - f.w).toFixed(2)}\\cdot${f.H.toFixed(2)}\\cdot ${P.pE}^{\\,${f.k}/${P.NgE}+${f.l}/${P.NlE}}=${fmt(f.E)}`)
+    ? tex(`E(t)=(1-w)\\,A\\,p_E^{\\,(n-\\ell)/N^E_g+\\ell/N^E_l}=${(1 - f.w).toFixed(2)}\\cdot${f.H.toFixed(2)}\\cdot ${P.pE}^{\\,(${f.k + f.l}-${f.l})/${P.NgE}+${f.l}/${P.NlE}}=${fmt(f.E)}`)
     : tex(`E(t)=0`) + ` <span class="txt">(inside a salient region)</span>`;
-  const eT = tex(`T(t)=w\\,A_T\\,p_T^{\\,(n-\\ell)/N^T_g+\\ell/N^T_l}=${f.w.toFixed(2)}\\cdot ${P.AT}\\cdot ${P.pT}^{\\,(${f.n}-${f.lt})/${P.NgT}+${f.lt}/${P.NlT}}=${fmt(f.T)}`);
+  const eT = tex(`T(t)=w\\,A\\,p_T^{\\,(n-\\ell)/N^T_g+\\ell/N^T_l}=${f.w.toFixed(2)}\\cdot ${f.H.toFixed(2)}\\cdot ${P.pT}^{\\,(${f.n}-${f.lt})/${P.NgT}+${f.lt}/${P.NlT}}=${fmt(f.T)}`);
   const run = Math.sqrt(f.sumE * f.sumT);
   return s + `<div class="ro-eq">${eE}</div><div class="ro-eq">${eT}</div>` +
     `<div class="txt">So far (frames 1–${f.i + 1}): <i>E</i><sub>tot</sub> = <b>${f.sumE.toFixed(2)}</b>, <i>T</i><sub>tot</sub> = <b>${f.sumT.toFixed(2)}</b>, √(<i>E</i><sub>tot</sub>·<i>T</i><sub>tot</sub>) = <b>${run.toFixed(2)}</b></div>`;
@@ -607,9 +607,9 @@ function drawTotals(card) {
     SCEN.map(s => `<button type="button" class="tot-row" data-k="${s.key}" aria-pressed="${s === card.scen}"><span class="tot-name">${s.name}</span>${cell(s.E, mE, "e")}${cell(s.T, mT, "t")}${cell(s.M, mM, "m")}</button>`).join("");
 }
 function tableFinal(card) {
-  const cols = ["frame", "where", "w", "A_E", "E(t)", "T(t)", "E_tot", "T_tot"];
+  const cols = ["frame", "where", "w", "A", "E(t)", "T(t)", "E_tot", "T_tot"];
   const rows = card.frames.map(f => [f.i + 1, f.zone === "in" ? "on " + "AB"[f.region] : f.step === "L" ? "outside, frozen" : "outside, moving",
-    f.w.toFixed(2), f.zone === "out" ? f.H.toFixed(2) : "—", fmt(f.E), fmt(f.T), f.sumE.toFixed(2), f.sumT.toFixed(2)]);
+    f.w.toFixed(2), f.H.toFixed(2), fmt(f.E), fmt(f.T), f.sumE.toFixed(2), f.sumT.toFixed(2)]);
   card.el.det.querySelector(".w-tbl-wrap").innerHTML = `<table><thead><tr>${cols.map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(v => `<td>${v}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
 }
 

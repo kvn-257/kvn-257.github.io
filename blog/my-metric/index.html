@@ -323,26 +323,82 @@
         <p>$$\operatorname{IoU} = \frac{(b - |\Delta x|)(b - |\Delta y|)}{2b^2 - (b - |\Delta x|)(b - |\Delta y|)} .$$
         </p>
 
-        <p>For a shift along one axis, $\operatorname{IoU} &gt; 0.9$ means a shift of less than $b/19$, about $2.6$ px
-          for $b = 50$. In other words, the model is not moving.</p>
+        <details class="proof">
+          <summary><span class="when-closed">Show the proof</span><span class="when-open">Hide the proof</span>
+          </summary>
+          <div class="proof-body"><div class="proof-inner">
+          <p><strong>Proof.</strong> Put $B(t-1)$ at $[0, b] \times [0, b]$, so that $B(t) = [\Delta x,\, \Delta x + b]
+            \times [\Delta y,\, \Delta y + b]$. If $|\Delta x| \ge b$ or $|\Delta y| \ge b$, the boxes do not overlap
+            and the IoU is $0$, so assume both shifts are smaller than $b$.</p>
 
-        <p>Every other step in the run, including the first one, is a <strong>global step</strong>. We split the run
-          counter into the two kinds:</p>
+          <div class="proof-diagram">
+            <svg viewBox="0 0 290 222" role="img"
+              aria-label="Two b by b boxes. B(t) is B(t-1) shifted right by |Δx| and up by |Δy|. Their overlap is a rectangle of width b minus |Δx| and height b minus |Δy|.">
+              <rect class="ov" x="80" y="60" width="80" height="90" />
+              <rect class="bx old" x="40" y="60" width="120" height="120" />
+              <rect class="bx now" x="80" y="30" width="120" height="120" />
+              <text x="46" y="173">B(t − 1)</text>
+              <text x="194" y="47" text-anchor="end">B(t)</text>
+              <text class="big" x="120" y="110" text-anchor="middle">I</text>
+              <path class="dim" d="M40 198H160M40 192v12M80 192v12M160 192v12" />
+              <text x="60" y="216" text-anchor="middle">|Δx|</text>
+              <text x="120" y="216" text-anchor="middle">b − |Δx|</text>
+              <path class="dim" d="M218 30V150M212 30h12M212 60h12M212 150h12" />
+              <text x="228" y="49">|Δy|</text>
+              <text x="228" y="109">b − |Δy|</text>
+            </svg>
+          </div>
+
+          <p><em>Intersection.</em> Two axis-aligned rectangles meet in a rectangle, and each side of it is the overlap
+            of the matching sides. Along $x$,
+            $$[0, b] \cap [\Delta x,\, \Delta x + b] = \big[\max(0, \Delta x),\; \min(b,\, b + \Delta x)\big],$$
+            which has length $b - \Delta x$ if $\Delta x \ge 0$ and $b + \Delta x$ if $\Delta x &lt; 0$, so $b -
+            |\Delta x|$ in both cases. The same holds along $y$, so the intersection has area
+            $$I = \big|B(t) \cap B(t-1)\big| = (b - |\Delta x|)(b - |\Delta y|).$$</p>
+
+          <p><em>Union.</em> Adding the two areas counts the intersection twice, so we subtract it once
+            (inclusion–exclusion):
+            $$
+            \begin{aligned}
+            \big|B(t) \cup B(t-1)\big| &amp;= \big|B(t)\big| + \big|B(t-1)\big| - \big|B(t) \cap B(t-1)\big|\\
+            &amp;= b^2 + b^2 - I \;=\; 2b^2 - I.
+            \end{aligned}
+            $$</p>
+
+          <p><em>Ratio.</em> Dividing the two,
+            $$\operatorname{IoU} = \frac{\big|B(t) \cap B(t-1)\big|}{\big|B(t) \cup B(t-1)\big|} = \frac{I}{2b^2 - I}
+            = \frac{(b - |\Delta x|)(b - |\Delta y|)}{2b^2 - (b - |\Delta x|)(b - |\Delta y|)} .$$
+            <span class="qed" aria-label="End of proof">∎</span></p>
+          </div></div>
+        </details>
+
+        <p>For a shift of $d$ along one axis only ($|\Delta x| = d$, $\Delta y = 0$), the formula simplifies to</p>
+
+        <p>$$\operatorname{IoU} = \frac{b\,(b - d)}{2b^2 - b\,(b - d)} = \frac{b - d}{b + d},$$</p>
+
+        <p>and</p>
+
+        <p>$$\frac{b - d}{b + d} &gt; 0.9 \iff b - d &gt; 0.9\,b + 0.9\,d \iff 0.1\,b &gt; 1.9\,d \iff d &lt;
+          \frac{b}{19}.$$</p>
+
+        <p>That is less than about $2.6$ px for $b = 50$. In other words, the model is not moving.</p>
+
+        <p>Every other step in the run, including the first one, is a <strong>global step</strong>. A second counter
+          $\ell(t)$ counts the local steps in the current run:</p>
 
         <p>$$
-          n(t) = \underbrace{k(t)}_{\text{global steps}} + \underbrace{\ell(t)}_{\text{local steps}},
-          \qquad
           \ell(t) =
           \begin{cases}
           0 &amp; \text{if no run, or a run starts}\\
           \ell(t-1) + 1 &amp; \text{if } t \text{ is a local step}\\
-          \ell(t-1) &amp; \text{otherwise.}
+          \ell(t-1) &amp; \text{otherwise,}
           \end{cases}
           $$</p>
 
-        <p>Each kind of step gets its own length scale, with $N_l &lt; N_g$:</p>
+        <p>so the run's $n(t)$ steps split into $n(t) - \ell(t)$ global steps and $\ell(t)$ local steps. Each kind of
+          step gets its own length scale, with $N_l &lt; N_g$:</p>
 
-        <p>$$E(t) = \big(1 - w(t)\big)\, A(t)\; p^{\,k(t)/N_g \;+\; \ell(t)/N_l}.$$</p>
+        <p>$$E(t) = \big(1 - w(t)\big)\, A(t)\; p^{\,(n(t) - \ell(t))/N_g \;+\; \ell(t)/N_l}.$$</p>
 
         <p>$N_l$ is measured in the same way as $N_g$. It is the average length of human stretches outside where
           consecutive boxes overlap with IoU $&gt; 0.9$: $2.42$ frames on DIEM and $2.22$ on Hollywood.</p>
@@ -379,10 +435,11 @@
         <ul>
           <li><strong>Weight $w(t)$.</strong> This is the mirror of the exploration weight $1 - w(t)$. The more salient
             the fixation, the more it counts as tracking.</li>
-          <li><strong>Amplitude $A_T$.</strong> A constant, $A_T = 1$ for now.</li>
+          <li><strong>Amplitude $A(t)$.</strong> The same as in exploration (§3.1): the patch entropy around the
+            fixation.</li>
         </ul>
 
-        <p>$$T(t) = w(t)\, A_T .$$</p>
+        <p>$$T(t) = w(t)\, A(t) .$$</p>
 
         <p>The tracking term needs no hard "inside" condition. Outside, $w(t) &lt; \theta$ is small, so $T(t)$ is small
           automatically.</p>
@@ -412,7 +469,7 @@
           \end{cases}
           $$</p>
 
-        <p>$$T(t) = w(t)\, A_T\; p^{\,n(t)/N_g} .$$</p>
+        <p>$$T(t) = w(t)\, A(t)\; p^{\,n(t)/N_g} .$$</p>
 
         <p>While the model is outside, the clock keeps running. It is not reset by leaving, only by
           <strong>returning</strong>. So the tracking reward is restored only after a real excursion.
@@ -472,10 +529,10 @@
           \end{cases}
           $$</p>
 
-        <p>As in exploration, global steps use $N_g$ and local steps use the faster $N_l$. Here $n(t) - \ell(t)$ is the
-          number of global steps:</p>
+        <p>As in exploration, the $n(t) - \ell(t)$ global steps use $N_g$ and the $\ell(t)$ local steps use the faster
+          $N_l$:</p>
 
-        <p>$$T(t) = w(t)\, A_T\; p^{\,(n(t) - \ell(t))/N_g \;+\; \ell(t)/N_l} .$$</p>
+        <p>$$T(t) = w(t)\, A(t)\; p^{\,(n(t) - \ell(t))/N_g \;+\; \ell(t)/N_l} .$$</p>
 
         <p>Here is what this does:</p>
 
@@ -485,8 +542,8 @@
           <li><strong>Several regions, staying on one.</strong> Each frame adds the fast $1/N_l$ decay.</li>
           <li><strong>A switch.</strong> $\ell$ drops to $0$ and the score jumps back up to the <strong>global
               envelope</strong>
-            $$w(t)\, A_T\; p^{\,n(t)/N_g},$$
-            not all the way back to $w(t)\, A_T$. Switching between objects is good, but it is still "staying inside",
+            $$w(t)\, A(t)\; p^{\,n(t)/N_g},$$
+            not all the way back to $w(t)\, A(t)$. Switching between objects is good, but it is still "staying inside",
             so only an excursion outside restarts the global clock.</li>
         </ul>
 
@@ -513,9 +570,9 @@
 
         <p>$$
           \begin{aligned}
-          E(t) &amp;= \mathbf{1}\big[w(t) &lt; \theta\big]\,\big(1 - w(t)\big)\, A_E(t)\;
-          p_E^{\,k_E(t)/N^E_g \,+\, \ell_E(t)/N^E_l} &amp;&amp; \text{(exploration)}\\[6pt]
-          T(t) &amp;= w(t)\, A_T\; p_T^{\,(n_T(t) - \ell_T(t))/N^T_g \,+\, \ell_T(t)/N^T_l} &amp;&amp; \text{(tracking)}
+          E(t) &amp;= \mathbf{1}\big[w(t) &lt; \theta\big]\,\big(1 - w(t)\big)\, A(t)\;
+          p_E^{\,(n_E(t) - \ell_E(t))/N^E_g \,+\, \ell_E(t)/N^E_l} &amp;&amp; \text{(exploration)}\\[6pt]
+          T(t) &amp;= w(t)\, A(t)\; p_T^{\,(n_T(t) - \ell_T(t))/N^T_g \,+\, \ell_T(t)/N^T_l} &amp;&amp; \text{(tracking)}
           \end{aligned}
           $$</p>
 
@@ -541,8 +598,7 @@
           <figcaption><span class="fig-label">Figure 5.1:</span> <span data-caption>Both terms on one scanpath, combined
               with the geometric mean.</span> The saliency map and texture are synthetic, so <i>w</i>(<i>t</i>) and
             <i>A</i>(<i>t</i>) are example values. Exploration uses the DIEM length scales (6.29, 2.42), tracking the
-            placeholders (30, 10); <i>p</i><sub>E</sub> = <i>p</i><sub>T</sub> = 0.01, <i>A</i><sub>T</sub> = 1, θ =
-            0.3.
+            placeholders (30, 10); <i>p</i><sub>E</sub> = <i>p</i><sub>T</sub> = 0.01, θ = 0.3.
           </figcaption>
         </figure>
 
@@ -678,14 +734,9 @@
               <td>$2\sigma$, 0.3</td>
             </tr>
             <tr>
-              <td>$A_E(t)$</td>
-              <td>exploration amplitude</td>
+              <td>$A(t)$</td>
+              <td>amplitude (both terms)</td>
               <td>patch entropy $H(t)$</td>
-            </tr>
-            <tr>
-              <td>$A_T$</td>
-              <td>tracking amplitude</td>
-              <td>1</td>
             </tr>
             <tr>
               <td>$N^T_g,\ N^T_l$</td>
