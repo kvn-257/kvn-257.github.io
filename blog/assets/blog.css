@@ -378,6 +378,33 @@ table.data-table.mono tbody td:nth-child(2) {
 }
 .callout p:last-child { margin-bottom: 0; }
 
+/* Draft notice at the top of an unpublished post */
+.draft-banner {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin: 0 0 1.6rem;
+  padding: 0.75rem 1rem;
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--t);
+  background: rgba(151, 55, 82, 0.06);
+  border: 1px solid rgba(151, 55, 82, 0.35);
+  border-radius: 4px;
+}
+.draft-banner .draft-tag {
+  flex: none;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--highlight);
+  border-radius: 3px;
+}
+
 /* Proof of a formula, folded under it:
    <details class="proof"><summary>…</summary><div class="proof-body"><div class="proof-inner">…</div></div></details>
    blog.js slides it open and shut. */
