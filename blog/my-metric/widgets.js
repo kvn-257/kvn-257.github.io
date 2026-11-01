@@ -129,13 +129,13 @@ c1: {
   scene: c => scene(c, [BLOB_E], { r: 20, box: 14 }),
   readout(c, f) {
     const P = c.params;
-    const chips = `<div class="chips"><span>frame <b>${f.i + 1}</b></span><span>${f.zone === "in" ? "inside" : "outside"}</span><span>run counter <b>n = ${f.n}</b></span></div>`;
-    const eq = f.zone === "in" ? `<span class="txt">Inside the salient region: no exploration score, and the run counter is 0. The next excursion starts again at n = 1.</span>`
+    const chips = `<div class="chips"><span>frame <b>${f.i + 1}</b></span><span>${f.zone === "in" ? "inside" : "outside"}</span><span>exploration counter <b>n = ${f.n}</b></span></div>`;
+    const eq = f.zone === "in" ? `<span class="txt">Inside the salient region: no exploration score, and the exploration counter is reset to 0. The next excursion starts again at n = 1.</span>`
       : tex(`D_E(t)=p^{\\,n/N_g}=${P.p}^{\\,${f.n}/${num(P.Ng)}}=${fmt(f.D)}`);
     return chips + `<div class="ro-eq">${eq}</div>`;
   },
   factors: P => `each frame outside: × ${fmt(Math.pow(P.p, 1 / P.Ng))}`,
-  caption: P => `Each excursion starts at p<sup>1/N<sub>g</sub></sup> = ${fmt(Math.pow(P.p, 1 / P.Ng))} and keeps falling while the model stays outside. After N<sub>g</sub> = ${num(P.Ng)} frames it reaches p. Coming back inside ends the run, so short excursions are cheap and long ones fade out.`,
+  caption: P => `Each excursion starts at p<sup>1/N<sub>g</sub></sup> = ${fmt(Math.pow(P.p, 1 / P.Ng))} and keeps falling while the model stays outside. After N<sub>g</sub> = ${num(P.Ng)} frames it reaches p. Coming back inside resets the counter, so short excursions are cheap and long ones fade out.`,
   cols: ["frame", "zone", "n", "D_E"], row: f => [f.i + 1, f.zone === "in" ? "inside" : "outside", f.n, fmt(f.D)]
 },
 c2: {
@@ -181,7 +181,7 @@ c2: {
       `<div class="ro-eq">${tex(`\\text{if it had kept moving: }p^{\\,n/N_g}=${fmt(f.env)}`)}</div>`;
   },
   factors: P => `global step: × ${fmt(Math.pow(P.p, 1 / P.Ng))}<br>local step: × ${fmt(Math.pow(P.p, 1 / P.Nl))}`,
-  caption: P => `A frozen frame multiplies the score by p<sup>1/N<sub>l</sub></sup> = ${fmt(Math.pow(P.p, 1 / P.Nl))} instead of p<sup>1/N<sub>g</sub></sup> = ${fmt(Math.pow(P.p, 1 / P.Ng))}, so one frozen frame costs as much as ${num(P.Ng / P.Nl)} moving frames. The extra decay stays for the rest of the run. Only going back inside clears it, which is why the second excursion starts over.`,
+  caption: P => `A frozen frame multiplies the score by p<sup>1/N<sub>l</sub></sup> = ${fmt(Math.pow(P.p, 1 / P.Nl))} instead of p<sup>1/N<sub>g</sub></sup> = ${fmt(Math.pow(P.p, 1 / P.Ng))}, so one frozen frame costs as much as ${num(P.Ng / P.Nl)} moving frames. The extra decay stays for the rest of the run. Only going back inside resets the counters, so the second excursion starts again from n = 1, ℓ = 0.`,
   cols: ["frame", "zone", "step", "n", "ℓ", "D_E", "kept moving"],
   row: f => [f.i + 1, f.zone === "in" ? "inside" : "outside", f.step === "L" ? "local" : f.step === "G" ? "global" : "—", f.zone === "in" ? "—" : f.n, f.zone === "in" ? "—" : f.l, fmt(f.D), fmt(f.env)]
 },
@@ -195,19 +195,19 @@ c3: {
     { type: "pstep", id: "p", label: "<i>p</i><sub>T</sub>, decay after <i>N</i> steps" }
   ],
   sim: P => trackOne(P),
-  legend: () => item(sw("sw-line global"), "tracking decay") + item(sw("sw-band away"), "outside: T(t) is scaled by a small w(t)") + item(sw("sw-evt"), "comes back, clock restarts"),
+  legend: () => item(sw("sw-line global"), "tracking decay") + item(sw("sw-band away"), "outside: T(t) is scaled by a small w(t)") + item(sw("sw-evt"), "comes back, counter reset"),
   band: f => f.zone === "out" ? "band-away" : null,
   strip: f => f.zone === "out" ? "c-away" : "c-salient", stripLabel: "zone", points: false, evt: f => f.event === "restart",
   scene: c => scene(c, [[80, 45]], { r: 20 }),
   readout(c, f) {
     const P = c.params;
-    const chips = `<div class="chips"><span>frame <b>${f.i + 1}</b></span><span>${f.zone === "in" ? "on the salient region" : "away (outside)"}${f.event === "restart" ? " · came back" : ""}</span><span>clock <b>n = ${f.n}</b></span></div>`;
+    const chips = `<div class="chips"><span>frame <b>${f.i + 1}</b></span><span>${f.zone === "in" ? "on the salient region" : "away (outside)"}${f.event === "restart" ? " · came back" : ""}</span><span>tracking counter <b>n = ${f.n}</b></span></div>`;
     let eq = tex(`D_T(t)=p_T^{\\,n/N_g}=${P.p}^{\\,${f.n}/${P.Ng}}=${fmt(f.D)}`);
-    if (f.zone === "out") eq += `<div class="txt">The clock keeps running while away. The score is still w(t)·A(t)·D<sub>T</sub>(t), but w(t) &lt; θ makes it small.</div>`;
+    if (f.zone === "out") eq += `<div class="txt">The tracking counter keeps counting while away. The score is still w(t)·A(t)·D<sub>T</sub>(t), but w(t) &lt; η makes it small.</div>`;
     return chips + `<div class="ro-eq">${eq}</div>`;
   },
   factors: P => `each frame: × ${fmt(Math.pow(P.p, 1 / P.Ng))}`,
-  caption: P => P.leave >= 90 ? `The model never leaves, so the decay never resets and the score fades towards zero. After N<sub>g</sub> = ${P.Ng} frames it is down to p.` : `Leaving does not reset the clock; it keeps running while the model is away. Coming back restarts it at n = 1, so the tracking reward is restored only after a real excursion.`,
+  caption: P => P.leave >= 90 ? `The model never leaves, so the decay never resets and the score fades towards zero. After N<sub>g</sub> = ${P.Ng} frames it is down to p.` : `Leaving does not reset the tracking counter; it keeps counting while the model is away. Coming back resets it to n = 1, so the tracking reward is restored only after a real excursion.`,
   cols: ["frame", "zone", "n", "D_T"], row: f => [f.i + 1, f.zone === "in" ? "inside" : "away", f.n, fmt(f.D)]
 },
 c4: {
@@ -441,7 +441,7 @@ function table(card) {
 }
 
 /* ---------------- final score: both terms on one scanpath ---------------- */
-const FP = { pE: 0.01, NgE: 6.29, NlE: 2.42, pT: 0.01, NgT: 30, NlT: 10, theta: 0.3 };
+const FP = { pE: 0.01, NgE: 6.29, NlE: 2.42, pT: 0.01, NgT: 30, NlT: 10, eta: 0.3 };
 const PK = [[46, 43], [114, 43]], SIG = 10, BOX = 14, NF = 120;
 const Sal = (x, y) => Math.max(...PK.map(c => Math.exp(-((x - c[0]) ** 2 + (y - c[1]) ** 2) / (2 * SIG * SIG))));
 const Ent = (x, y) => 0.64 + 0.14 * Math.sin(x / 7.3) * Math.cos(y / 5.1);
@@ -455,11 +455,11 @@ function spot(i, prev) {
 }
 const SCEN = [
   { key: "good", name: "Explores + tracks", segs: [["A", 8], ["B", 8], ["A", 6], ["move", 5], ["B", 8], ["A", 8], ["move", 4], ["B", 8], ["A", 7], ["B", 7], ["move", 5]],
-    cap: "The model moves between A and B and makes a short excursion every 20 to 30 frames. Each switch lifts T back up to its envelope, each return restarts the tracking clock, and each excursion earns a new burst of E. Both totals are well above zero, so M is the highest of the five scanpaths." },
+    cap: "The model moves between A and B and makes a short excursion every 20 to 30 frames. Each switch lifts T back up to its envelope, each return resets the tracking counter, and each excursion earns a new burst of E. Both totals are well above zero, so M is the highest of the five scanpaths." },
   { key: "stuck", name: "Stuck on A", segs: [["A", NF]],
     cap: "Two regions are present, so every frame on A after the first is a local step. T falls with the fast local decay and never recovers. E stays 0, so M = 0." },
   { key: "switch", name: "Switches only", segs: [["A", 8], ["B", 8]],
-    cap: "Each switch puts T back on the global envelope, but the envelope keeps falling because the model never leaves to restart the clock. E stays 0, so M = 0 however well it tracks." },
+    cap: "Each switch puts T back on the global envelope, but the envelope keeps falling because the model never leaves to reset the tracking counter. E stays 0, so M = 0 however well it tracks." },
   { key: "wander", name: "Wanders outside", segs: [["move", NF]],
     cap: "E gets one run that fades within a few frames, and the run never ends because the model never comes back. T is small because w(t) is small outside, so M is small too." },
   { key: "frozen", name: "Frozen outside", segs: [["freeze", NF]],
@@ -479,8 +479,8 @@ function finalFrames(segs) {
   }
   const P = FP, fr = []; let k = 0, l = 0, n = 0, lt = 0, prevC = null, wasAway = false, sumE = 0, sumT = 0;
   pos.forEach((g, i) => {
-    const w = Sal(g[0], g[1]), H = Ent(g[0], g[1]), low = w < P.theta, plow = i > 0 && fr[i - 1].zone === "out";
-    // exploration: counters live inside each run of frames with w < θ
+    const w = Sal(g[0], g[1]), H = Ent(g[0], g[1]), low = w < P.eta, plow = i > 0 && fr[i - 1].zone === "out";
+    // exploration: counters live inside each run of frames with w < η
     let E = 0, step = null;
     if (!low) { k = 0; l = 0; }
     else {
@@ -489,7 +489,7 @@ function finalFrames(segs) {
       else { k++; step = "G"; }
       E = (1 - w) * H * Math.pow(P.pE, k / P.NgE + l / P.NlE);
     }
-    // tracking: clock n restarts on coming back; ℓ counts same-peak steps since the last switch
+    // tracking: counter n is reset on coming back; ℓ counts same-peak steps since the last switch
     const c = Math.hypot(g[0] - PK[0][0], g[1] - PK[0][1]) <= Math.hypot(g[0] - PK[1][0], g[1] - PK[1][1]) ? 0 : 1;
     let event = null;
     if (!low && wasAway) { n = 0; lt = 0; prevC = null; event = "back"; }

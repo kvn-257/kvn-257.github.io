@@ -174,8 +174,8 @@
             $$w(t) = S_t\big(g(t)\big) \in [0, 1].$$
             $w(t) \approx 1$ means the model looks where most people look. $w(t) \approx 0$ means it looks where nobody
             looks.</li>
-          <li>A fixation is <strong>inside a salient region</strong> if $w(t) \ge \theta$ and <strong>outside</strong>
-            if $w(t) &lt; \theta$. We use $\theta = 0.3$.</li>
+          <li>A fixation is <strong>inside a salient region</strong> if $w(t) \ge \eta$ and <strong>outside</strong>
+            if $w(t) &lt; \eta$. We use $\eta = 0.3$.</li>
           <li>$\mathcal{C}$ is the set of frames where a new shot starts (scene cuts). The first frame counts as a cut,
             $1 \in \mathcal{C}$.</li>
         </ul>
@@ -245,7 +245,7 @@
 
         <p>Before any decay, the exploration score is</p>
 
-        <p>$$E(t) = \big(1 - w(t)\big)\, A(t) \qquad \text{for } w(t) &lt; \theta,$$</p>
+        <p>$$E(t) = \big(1 - w(t)\big)\, A(t) \qquad \text{for } w(t) &lt; \eta,$$</p>
 
         <p>and $E(t) = 0$ inside the salient region.</p>
 
@@ -261,14 +261,14 @@
           excursion fade, then drag $N_g$ or the number of frames outside to see how quickly a long excursion stops
           paying.</p>
 
-        <p>We count how long the model has been outside. The <strong>run counter</strong> $n(t)$ is the number of
+        <p>We count how long the model has been outside. The <strong>exploration counter</strong> $n(t)$ is the number of
           consecutive frames outside, including the current one:</p>
 
         <p>$$
           n(t) =
           \begin{cases}
-          0 &amp; \text{if } w(t) \ge \theta \quad \text{(inside: no run)}\\[2pt]
-          1 &amp; \text{if } w(t) &lt; \theta \text{ and } \big(w(t-1) \ge \theta \text{ or } t \in \mathcal{C}\big)
+          0 &amp; \text{if } w(t) \ge \eta \quad \text{(inside: no run)}\\[2pt]
+          1 &amp; \text{if } w(t) &lt; \eta \text{ and } \big(w(t-1) \ge \eta \text{ or } t \in \mathcal{C}\big)
           \quad \text{(a run starts)}\\[2pt]
           n(t-1) + 1 &amp; \text{otherwise} \quad \text{(the run continues)}
           \end{cases}
@@ -281,10 +281,10 @@
         <ul>
           <li><strong>Coming back resets it.</strong> As soon as the model returns to a salient region the run ends. Its
             next excursion starts again from $n = 1$. Short excursions are cheap, and long ones fade away.</li>
-          <li><strong>A scene cut also resets it.</strong> A new shot is new content, so the counter starts over.</li>
+          <li><strong>A scene cut also resets it,</strong> because a new shot is new content.</li>
           <li><strong>Choosing $N_g$.</strong> $N_g$ is the average length of a run outside the salient regions for
             <em>human</em> viewers. This is $6.29$ frames on DIEM and $3.07$ frames on Hollywood ($\sigma = 40$ px on
-            screen, $\theta = 0.3$). So after an excursion as long as a typical human's, the score has fallen to $p =
+            screen, $\eta = 0.3$). So after an excursion as long as a typical human's, the score has fallen to $p =
             1\%$.
           </li>
         </ul>
@@ -390,7 +390,7 @@
 
         <p>That is less than about $2.6$ px for $b = 50$. In other words, the model is not moving.</p>
 
-        <p>Every other step in the run, including the first one, is a <strong>global step</strong>. A second counter
+        <p>Every other step in the run, including the first one, is a <strong>global step</strong>. The <strong>local counter</strong>
           $\ell(t)$ counts the local steps in the current run:</p>
 
         <p>$$
@@ -415,7 +415,7 @@
           frames.</p>
 
         <p>Freezing is <strong>not forgiven</strong> within the run. Once the model has frozen, the extra decay stays
-          until the run ends, either when the model returns to a salient region or at a cut.</p>
+          until the local counter is reset, either when the model returns to a salient region or at a cut.</p>
 
         <figure class="widget tex2jax_ignore" id="fig-case11" data-widget="c2">
           <div class="w-head"><span class="w-case">Case 1.1</span><span class="w-title">Outside and not moving · local
@@ -448,7 +448,7 @@
 
         <p>$$T(t) = w(t)\, A(t) .$$</p>
 
-        <p>The tracking term needs no hard "inside" condition. Outside, $w(t) &lt; \theta$ is small, so $T(t)$ is small
+        <p>The tracking term needs no hard "inside" condition. Outside, $w(t) &lt; \eta$ is small, so $T(t)$ is small
           automatically.</p>
 
         <h3>4.2 Case 2: staying only in salient regions (global decay)</h3>
@@ -460,17 +460,17 @@
 
         <p class="try-it"><strong>Try it:</strong> in Figure 4.1 (<span data-wide="on the right"
             data-narrow="below">below</span>), change how long the model stays on the salient region before it leaves.
-          Drag that slider to the end and the model never leaves, so its score just fades; otherwise the clock restarts
-          every time it comes back.</p>
+          Drag that slider to the end and the model never leaves, so its score just fades; otherwise the tracking counter is
+          reset every time it comes back.</p>
 
-        <p>Even perfect tracking should not go on forever without a look elsewhere. The <strong>tracking clock</strong>
+        <p>Even perfect tracking should not go on forever without a look elsewhere. The <strong>tracking counter</strong>
           $n(t)$ counts frames since the model last <em>came back</em> to a salient region after being outside, or since
           the last cut:</p>
 
         <p>$$
           n(t) =
           \begin{cases}
-          1 &amp; \text{if } t \in \mathcal{C}, \text{ or } w(t) \ge \theta \text{ and } w(t-1) &lt; \theta \quad
+          1 &amp; \text{if } t \in \mathcal{C}, \text{ or } w(t) \ge \eta \text{ and } w(t-1) &lt; \eta \quad
           \text{(cut, or came back)}\\[2pt]
           n(t-1) + 1 &amp; \text{otherwise.}
           \end{cases}
@@ -478,7 +478,7 @@
 
         <p>$$T(t) = w(t)\, A(t)\; p^{\,n(t)/N_g} .$$</p>
 
-        <p>While the model is outside, the clock keeps running. It is not reset by leaving, only by
+        <p>Unlike the exploration counter, the tracking counter keeps counting while the model is outside. It is not reset by leaving, only by
           <strong>returning</strong>. So the tracking reward is restored only after a real excursion.
         </p>
 
@@ -486,7 +486,7 @@
 
         <ul>
           <li>the <strong>exploration</strong> counter is reset by <em>entering</em> a salient region,</li>
-          <li>the <strong>tracking</strong> clock is reset by <em>coming back</em> to a salient region after leaving.
+          <li>the <strong>tracking</strong> counter is reset by <em>coming back</em> to a salient region after leaving.
           </li>
         </ul>
 
@@ -514,7 +514,7 @@
           the dashed envelope.</p>
 
         <p><strong>Salient regions as peaks.</strong> The salient regions of frame $t$ are the peaks of $S_t$. A peak is
-          a local maximum within radius $r = 2\sigma$ with height at least $\eta = 0.3$. Call the set of peaks
+          a local maximum within radius $r = 2\sigma$ with height at least $\eta$, the same threshold that defines a salient region. Call the set of peaks
           $\mathcal{P}_t$. Each fixation is assigned to its nearest peak:</p>
 
         <p>$$c(t) = \arg\min_{c \in \mathcal{P}_t} \big\lVert g(t) - c \big\rVert .$$</p>
@@ -525,7 +525,7 @@
         <p>$$\text{switch at } t \iff \big\lVert c(t) - c(t-1) \big\rVert &gt; r .$$</p>
 
         <p><strong>Local steps since the last switch.</strong> If the frame has two or more peaks and the model is still
-          on the same one, the frame is a local step:</p>
+          on the same one, the frame is a local step, and the <strong>local counter</strong> $\ell(t)$ counts them:</p>
 
         <p>$$
           \ell(t) =
@@ -547,11 +547,11 @@
           <li><strong>Only one salient region.</strong> $\ell$ never grows, so this is exactly Case 2 (global decay
             only).</li>
           <li><strong>Several regions, staying on one.</strong> Each frame adds the fast $1/N_l$ decay.</li>
-          <li><strong>A switch.</strong> $\ell$ drops to $0$ and the score jumps back up to the <strong>global
+          <li><strong>A switch.</strong> $\ell$ is reset to $0$ and the score jumps back up to the <strong>global
               envelope</strong>
             $$w(t)\, A(t)\; p^{\,n(t)/N_g},$$
             not all the way back to $w(t)\, A(t)$. Switching between objects is good, but it is still "staying inside",
-            so only an excursion outside restarts the global clock.</li>
+            so only an excursion outside resets the tracking counter.</li>
         </ul>
 
         <p>The result is a <strong>sawtooth under a slowly falling envelope</strong>.</p>
@@ -577,7 +577,7 @@
 
         <p>$$
           \begin{aligned}
-          E(t) &amp;= \mathbf{1}\big[w(t) &lt; \theta\big]\,\big(1 - w(t)\big)\, A(t)\;
+          E(t) &amp;= \mathbf{1}\big[w(t) &lt; \eta\big]\,\big(1 - w(t)\big)\, A(t)\;
           p_E^{\,(n_E(t) - \ell_E(t))/N^E_g \,+\, \ell_E(t)/N^E_l} &amp;&amp; \text{(exploration)}\\[6pt]
           T(t) &amp;= w(t)\, A(t)\; p_T^{\,(n_T(t) - \ell_T(t))/N^T_g \,+\, \ell_T(t)/N^T_l} &amp;&amp;
           \text{(tracking)}
@@ -606,7 +606,7 @@
           <figcaption><span class="fig-label">Figure 5.1:</span> <span data-caption>Both terms on one scanpath, combined
               with the geometric mean.</span> The saliency map and texture are synthetic, so <i>w</i>(<i>t</i>) and
             <i>A</i>(<i>t</i>) are example values. Exploration uses the DIEM length scales (6.29, 2.42), tracking the
-            placeholders (30, 10); <i>p</i><sub>E</sub> = <i>p</i><sub>T</sub> = 0.01, θ = 0.3.
+            placeholders (30, 10); <i>p</i><sub>E</sub> = <i>p</i><sub>T</sub> = 0.01, η = 0.3.
           </figcaption>
         </figure>
 
@@ -633,12 +633,12 @@
               <td>still on the same peak while $\ge 2$ peaks exist</td>
             </tr>
             <tr>
-              <td>local steps cleared by</td>
+              <td>local counter $\ell$ reset by</td>
               <td>end of the run only</td>
               <td>switching to another peak</td>
             </tr>
             <tr>
-              <td>clock restarts on</td>
+              <td>counter $n$ reset by</td>
               <td>entering a salient region, cut</td>
               <td>coming back from outside, cut</td>
             </tr>
@@ -665,7 +665,7 @@
             </tr>
             <tr>
               <td>enters a salient region</td>
-              <td>exploration run ends, so the next excursion starts again from $n = 1$</td>
+              <td>exploration counter reset, so the next excursion starts again from $n = 1$</td>
             </tr>
             <tr>
               <td>stays on the only salient region</td>
@@ -681,11 +681,11 @@
             </tr>
             <tr>
               <td>leaves and comes back</td>
-              <td>tracking clock restarts</td>
+              <td>tracking counter reset</td>
             </tr>
             <tr>
               <td>scene cut</td>
-              <td>everything restarts</td>
+              <td>all counters reset</td>
             </tr>
           </tbody>
         </table>
@@ -707,8 +707,8 @@
               <td>40 px (on screen)</td>
             </tr>
             <tr>
-              <td>$\theta$</td>
-              <td>inside/outside threshold on $w$</td>
+              <td>$\eta$</td>
+              <td>inside/outside threshold on $w$, also the minimum peak height</td>
               <td>0.3</td>
             </tr>
             <tr>
@@ -737,9 +737,9 @@
               <td>2.42 (DIEM), 2.22 (Hollywood)</td>
             </tr>
             <tr>
-              <td>$r$, $\eta$</td>
-              <td>peak radius and minimum peak height</td>
-              <td>$2\sigma$, 0.3</td>
+              <td>$r$</td>
+              <td>peak radius</td>
+              <td>$2\sigma$</td>
             </tr>
             <tr>
               <td>$A(t)$</td>
